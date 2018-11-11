@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-# I added a comment
-# here is my second try
+
 import sys
+
+import tkinter as tk
+from tkinter import *
+import tkinter.messagebox as messagebox
+
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import (
@@ -23,28 +27,30 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QListWidget,
     QMessageBox,
-    QFormLayout,
+    QFormLayout, 
     QDialog,
     QLayout,
     QHBoxLayout,
     QGridLayout
 )
+
 from PyQt5.QtGui import (
     QStandardItemModel,
     QStandardItem
 )
+
 from PyQt5.QtCore import (
     Qt,
     QAbstractTableModel,
     QVariant
 )
+
 from PyQt5.QtSql import (
     QSqlDatabase,
     QSqlQuery,
     QSqlQueryModel
 )
 
-import PyQt5.QtGui
 import pymysql
 
 class MainWindow(QWidget):
@@ -55,9 +61,7 @@ class MainWindow(QWidget):
         makewin = self.login()
 
     def login(self):
-
-
-
+#Creating the first page for login information        
         self.user_line_edit = QLineEdit()
         self.password_line_edit = QLineEdit()
 
@@ -85,6 +89,7 @@ class MainWindow(QWidget):
 
 
     def go_to_register(self):
+#creating the registration page
         # app = QApplication(sys.argv)
         # w = QWidget()
         # reg_button = QPushButton(w)
@@ -95,6 +100,7 @@ class MainWindow(QWidget):
         self.db = self.Connect()
         self.c = self.db.cursor()
 
+#Labels for registration information
         self.email = QLabel('Email:')
         self.wemail  = QLineEdit()
         self.user = QLabel('Username')
@@ -104,6 +110,7 @@ class MainWindow(QWidget):
         self.confirmpswd = QLabel('Confirm Password:')
         self.wconfirmpswd  = QLineEdit()
 
+#Creating the buttons for registering staff or visitors
         self.RegVisitor = QPushButton('Register Visitor')
         self.RegStaff = QPushButton('Register Staff')
 
@@ -111,6 +118,7 @@ class MainWindow(QWidget):
         regLayout.setColumnStretch(1,3)
         regLayout.setRowStretch(1,3)
 
+#Boxes for registration information
         regLayout.addWidget(self.email,1,0)
         regLayout.addWidget(self.wemail, 1,1)
         regLayout.addWidget(self.user,2,0)
@@ -122,10 +130,11 @@ class MainWindow(QWidget):
         regLayout.addWidget(self.RegVisitor,5,0)
         regLayout.addWidget(self.RegStaff,5,1)
 
+#Using the register_visitor and register_staff functions to upload/check the info into the database
         self.RegVisitor.clicked.connect(self.register_visitor)
         self.RegStaff.clicked.connect(self.register_staff)
 
-        #w.show()
+
         self.go_to_register = QDialog()
         self.go_to_register.setLayout(regLayout)
         self.go_to_register.setWindowTitle('Register')
@@ -164,24 +173,35 @@ class MainWindow(QWidget):
 
 
     def register_visitor(self):
-
+#getting data from the registration page
         self.email = str(self.wemail.text())
         self.user = str(self.wuser.text())
-        self.pswd = str(self.wpswd.text())
-        #check for confirm
-
-        print(self.email)
-        print(self.user)
-        print(self.pswd)
+        self.pswd = str(self.wpswd.text())       
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"visitor"))
-        #self.db.commit()
+
+#conducting checks for registration information for visitors
+        if len(self.pswd) < 8:
+            #messagebox.showwarning("Error", "Password must be greater than 8 characters.")
+            print("Password needs to be more than 8 characters")
+
+        if self.confirmpswd != self.pswd:
+            #messagebox.showwarning("Error", "Password must match Confirm Password")
+            print("Password must match Confirm Password")
+        
+        if "@" not in self.email or "." not in self.email:
+            #messagebox.showwarning("Error", "Email must meet email format with "@" and "." symbols")
+            print("Email must meet email format with @ and . symbols")
+
+#adding the visitor to the database
+        else:
+            self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"visitor"))
+
 
 
     def register_staff(self):
-
+#getting information from the registration page for staff registration
         self.email = str(self.wemail.text())
         self.user = str(self.wuser.text())
         self.pswd = str(self.wpswd.text())
@@ -189,32 +209,37 @@ class MainWindow(QWidget):
 
         print(self.email)
         print(self.user)
-        print(self.pswd)
+        print(self.pswd)        
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"staff"))
 
+#conducting checks for registration information for staff       
+        if len(self.pswd) < 8:
+            #messagebox.showwarning("Error", "Password must be greater than 8 characters.")
+            print("Password needs to be more than 8 characters")
+       
+        if self.confirmpswd != self.pswd:
+            #messagebox.showwarning("Error", "Password must match Confirm Password")
+            print("Password must match Confirm Password")
 
-    def enable_login_button(self):
-        if len(self.password_line_edit.text()) < 8:
-            self.login_button.setEnabled(False)
+        if "@" not in self.email or "." not in self.email:
+            #messagebox.showwarning("Error", "Email must meet email format with "@" and "." symbols")
+            print("Email must meet email format with @ and . symbols")
+
+#adding the staff to the database
         else:
-            self.login_button.setEnabled(True)
+            self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"staff"))
 
-    def enable_register_button(self):
-        if (len(self.password_line_edit.text()) < 8 or len(self.user_line_edit.text()) == 0):
-            self.login_button.setEnabled(False)
-        else:
-            self.login_button.setEnabled(True)
 
     def Connect(self):
+#Connecting to the database, function used in multiple other areas around the code
         try:
             db = pymysql.connect(host = "academic-mysql.cc.gatech.edu", user = "cs4400_group4", passwd = "2jILwMuE", db="cs4400_group4")
             self.db = db
             db.autocommit(True)
             return db
-
+        
         except:
             messagebox.showwarning("Error", "Check Internet Connection")
 
