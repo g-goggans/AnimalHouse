@@ -88,23 +88,35 @@ class MainWindow(QWidget):
         self.vbox.addWidget(self.register_button)
         self.setLayout(self.vbox)
 
+    # check_user currently can only display the tuple from our database from which we query the row that matches the user and the password
     def check_user(self):
-        self.user = str(self.user_line_edit.text())
-        self.pswd = str(self.password_line_edit.text())
+        user = str(self.user_line_edit.text())
+        pswd = str(self.password_line_edit.text())
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        # self.c.execute("CHECK USERS WHERE EXISTS user=user AND pass=pass)
+        self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
+
+        currentuser = QLabel() # this will display the tuple of the sql statement
+        mystr = "" # turns the tuple into a string for printing
+        for i in self.c.fetchall():
+            mystr += str(i)
+        currentuser.setText(mystr)
+        vbox = QVBoxLayout()
+        vbox.addStretch(1)
+        vbox.addWidget(currentuser)
+        self.newWindow = TableWindow()
+        self.newWindow.setLayout(vbox)
+        self.newWindow.show()
+        ok = QPushButton("Ok")
+        ok.clicked.connect(self.newWindow.close)
+        vbox.addWidget(ok)
 
 
     def go_to_register(self):
 #creating the registration page
-        # app = QApplication(sys.argv)
-        # w = QWidget()
-        # reg_button = QPushButton(w)
+
         regLayout = QGridLayout()
-        # # reg_button.clicked.connect()
-        # w.setWindowTitle("Registration")
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -150,42 +162,15 @@ class MainWindow(QWidget):
         self.go_to_register.show()
 
 
-
-        # vbox = QWidget()
-        #
-        # vbox.email_line_edit = QLineEdit()
-        # # self.user_line_edit = QLineEdit()
-        # # self.password_line_edit = QLineEdit()
-        # # self.conf_password_line_edit = QLineEdit()
-        # #
-        # self.vbox.setWindowTitle("Registration")
-        # emaillbl = QLabel()
-        # emaillbl.setText("Email")
-        # # userlbl = QLabel()
-        # # userlbl.setText("Username")
-        # # passlbl = QLabel()
-        # # passlbl.setText("Password")
-        # # confpasslbl = QLabel()
-        # # confpasslbl.setText("Confirm Password")
-        # #
-        # self.vbox.addWidget(emaillbl)
-        # self.vbox.addWidget(self.email_line_edit)
-        # # self.vbox.addWidget(userlbl)
-        # # self.vbox.addWidget(self.user_line_edit)
-        # # self.vbox.addWidget(passlbl)
-        # # self.vbox.addWidget(self.password_line_edit)
-        # # self.vbox.addWidget(confpasslbl)
-        # # self.vbox.addWidget(self.conf_password_line_edit)
-        # #
-        # vbox.setWindowModality(Qt.ApplicationModal)
-        # vbox.exec_()
-
-
     def register_visitor(self):
 #getting data from the registration page
         self.email = str(self.wemail.text())
         self.user = str(self.wuser.text())
         self.pswd = str(self.wpswd.text())
+
+        print(self.email)
+        print(self.user)
+        print(self.pswd)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -252,6 +237,11 @@ class MainWindow(QWidget):
         except:
             messagebox.showwarning("Error", "Check Internet Connection")
 
+class TableWindow(QWidget):
+    def __init__(self):
+        super(TableWindow, self).__init__()
+        self.setWindowTitle('Table Data')
+        self.vbox = QVBoxLayout()
 
 if __name__=='__main__':
     app = QApplication(sys.argv)
