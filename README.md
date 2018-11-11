@@ -1,14 +1,14 @@
 # AnimalHouse
 Here are some helpful Git commands when working with our GitHub page:
 
-  # this will not add the file immediately; you must commit and push after adding
-  git add [the file you would like to add to the repo]
+  # git add [the file you would like to add to the repo]
+  this will not add the file immediately; you must commit and push after adding
   
-  # commit the changes; this does not update the public repo
-  git commit [the file you are working on] -m “[the message to describe your update]” 
+  # git commit [the file you are working on] -m “[the message to describe your update]” 
+  commit the changes; this does not update the public repo
   
-  # push all of your changes to update in the repo
-  git push origin	
+  # git push origin	
+  push all of your changes to update in the repo
   
-  # update the repo to your computer
-  git fetch --all
+  # git fetch --all
+  update the repo to your computer
