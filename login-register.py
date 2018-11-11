@@ -27,7 +27,7 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QListWidget,
     QMessageBox,
-    QFormLayout, 
+    QFormLayout,
     QDialog,
     QLayout,
     QHBoxLayout,
@@ -61,17 +61,18 @@ class MainWindow(QWidget):
         makewin = self.login()
 
     def login(self):
-#Creating the first page for login information        
+#Creating the first page for login information
         self.user_line_edit = QLineEdit()
         self.password_line_edit = QLineEdit()
 
         self.register_button = QPushButton("Register")
         self.register_button.setEnabled(True)
         self.login_button = QPushButton("Login")
-        self.login_button.setEnabled(False)
+        self.login_button.setEnabled(True)
 
         self.register_button.clicked.connect(self.go_to_register)
-        self.user_line_edit.textChanged.connect(self.enable_login_button)
+        self.login_button.clicked.connect(self.check_user)
+        # self.user_line_edit.textChanged.connect(self.enable_login_button)
 
         self.vbox = QVBoxLayout()
         userlbl = QLabel()
@@ -86,6 +87,14 @@ class MainWindow(QWidget):
         self.vbox.addWidget(self.login_button)
         self.vbox.addWidget(self.register_button)
         self.setLayout(self.vbox)
+
+    def check_user(self):
+        self.user = str(self.user_line_edit.text())
+        self.pswd = str(self.password_line_edit.text())
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        # self.c.execute("CHECK USERS WHERE EXISTS user=user AND pass=pass)
 
 
     def go_to_register(self):
@@ -176,7 +185,7 @@ class MainWindow(QWidget):
 #getting data from the registration page
         self.email = str(self.wemail.text())
         self.user = str(self.wuser.text())
-        self.pswd = str(self.wpswd.text())       
+        self.pswd = str(self.wpswd.text())
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -189,7 +198,7 @@ class MainWindow(QWidget):
         if self.confirmpswd != self.pswd:
             #messagebox.showwarning("Error", "Password must match Confirm Password")
             print("Password must match Confirm Password")
-        
+
         if "@" not in self.email or "." not in self.email:
             #messagebox.showwarning("Error", "Email must meet email format with "@" and "." symbols")
             print("Email must meet email format with @ and . symbols")
@@ -209,16 +218,16 @@ class MainWindow(QWidget):
 
         print(self.email)
         print(self.user)
-        print(self.pswd)        
+        print(self.pswd)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
 
-#conducting checks for registration information for staff       
+#conducting checks for registration information for staff
         if len(self.pswd) < 8:
             #messagebox.showwarning("Error", "Password must be greater than 8 characters.")
             print("Password needs to be more than 8 characters")
-       
+
         if self.confirmpswd != self.pswd:
             #messagebox.showwarning("Error", "Password must match Confirm Password")
             print("Password must match Confirm Password")
@@ -239,7 +248,7 @@ class MainWindow(QWidget):
             self.db = db
             db.autocommit(True)
             return db
-        
+
         except:
             messagebox.showwarning("Error", "Check Internet Connection")
 
