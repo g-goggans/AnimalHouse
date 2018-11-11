@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # I added a comment
+# here is my second try
 import sys
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
