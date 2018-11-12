@@ -52,6 +52,9 @@ from PyQt5.QtSql import (
 )
 
 import pymysql
+#stops annoyting tkinter pop ups
+root = Tk()
+root.withdraw()
 
 class MainWindow(QWidget):
 
@@ -170,19 +173,27 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
+        printstr = ""
+        count = 0
 
 #conducting checks for registration information for visitors
         if len(self.pswd) < 8:
-            #messagebox.showwarning("Error", "Password must be greater than 8 characters.")
-            print("Password needs to be more than 8 characters")
+            #print("Password needs to be more than 8 characters")
+            printstr += "Password needs to be more than 8 characters\n"
+            count+=1
 
         if self.confirmpswd != self.pswd:
-            #messagebox.showwarning("Error", "Password must match Confirm Password")
-            print("Password must match Confirm Password")
+            #print("Password must match Confirm Password")
+            printstr += "Password must match Confirm Password\n"
+            count+=1
 
         if "@" not in self.email or "." not in self.email:
-            #messagebox.showwarning("Error", "Email must meet email format with "@" and "." symbols")
-            print("Email must meet email format with @ and . symbols")
+            #print("Email must meet email format with @ and . symbols")
+            printstr += "Email must meet email format with @ and . symbols\n"
+            count+=1
+
+        if count > 0:
+            messagebox.showwarning("Error", printstr)
 
 #adding the visitor to the database
         else:
@@ -201,25 +212,34 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
+        printstr = ""
+        count = 0
 
 #conducting checks for registration information for staff
         if len(self.pswd) < 8:
-            #messagebox.showwarning("Error", "Password must be greater than 8 characters.")
-            print("Password needs to be more than 8 characters")
+            #print("Password needs to be more than 8 characters")
+            printstr += "Password needs to be more than 8 characters\n"
+            count+=1
 
         if self.confirmpswd != self.pswd:
-            #messagebox.showwarning("Error", "Password must match Confirm Password")
-            print("Password must match Confirm Password")
+            #print("Password must match Confirm Password")
+            printstr += "Password must match Confirm Password\n"
+            count+=1
 
         if "@" not in self.email or "." not in self.email:
-            #messagebox.showwarning("Error", "Email must meet email format with "@" and "." symbols")
-            print("Email must meet email format with @ and . symbols")
+            #print("Email must meet email format with @ and . symbols")
+            printstr += "Email must meet email format with @ and . symbols\n"
+            count+=1
+
+        if count > 0:
+            messagebox.showwarning("Error", printstr)
 
 #adding the staff to the database
         else:
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"staff"))
 
         self.go_to_register.close()
+
 
     def Connect(self):
 #Connecting to the database, function used in multiple other areas around the code
