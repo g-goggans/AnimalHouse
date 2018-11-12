@@ -155,7 +155,6 @@ class MainWindow(QWidget):
         self.RegVisitor.clicked.connect(self.register_visitor)
         self.RegStaff.clicked.connect(self.register_staff)
 
-
         self.go_to_register = QDialog()
         self.go_to_register.setLayout(regLayout)
         self.go_to_register.setWindowTitle('Register')
@@ -167,10 +166,7 @@ class MainWindow(QWidget):
         self.email = str(self.wemail.text())
         self.user = str(self.wuser.text())
         self.pswd = str(self.wpswd.text())
-
-        print(self.email)
-        print(self.user)
-        print(self.pswd)
+        self.confirmpswd = str(self.wconfirmpswd.text())
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -192,6 +188,7 @@ class MainWindow(QWidget):
         else:
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"visitor"))
 
+        self.go_to_register.close()
 
 
     def register_staff(self):
@@ -199,11 +196,8 @@ class MainWindow(QWidget):
         self.email = str(self.wemail.text())
         self.user = str(self.wuser.text())
         self.pswd = str(self.wpswd.text())
+        self.confirmpswd = str(self.wconfirmpswd.text())
         #check for confirm
-
-        print(self.email)
-        print(self.user)
-        print(self.pswd)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -225,6 +219,7 @@ class MainWindow(QWidget):
         else:
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"staff"))
 
+        self.go_to_register.close()
 
     def Connect(self):
 #Connecting to the database, function used in multiple other areas around the code
