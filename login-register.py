@@ -98,22 +98,28 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
 
-        currentuser = QLabel() # this will display the tuple of the sql statement
-        mystr = "" # turns the tuple into a string for printing
-        for i in self.c.fetchall():
-            mystr += str(i)
-        currentuser.setText(mystr)
-        vbox = QVBoxLayout()
-        vbox.addStretch(1)
-        vbox.addWidget(currentuser)
-        self.newWindow = TableWindow()
-        self.newWindow.setLayout(vbox)
-        self.newWindow.show()
-        ok = QPushButton("Ok")
-        ok.clicked.connect(self.newWindow.close)
-        vbox.addWidget(ok)
+        # tuple for logged in user
+        self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
+        if (self.c.fetchall()):
+
+            currentuser = QLabel() # this will display the tuple of the sql statement
+            mystr = "" # turns the tuple into a string for printing
+            for i in self.c.fetchall():
+                mystr += str(i)
+            currentuser.setText(mystr)
+            vbox = QVBoxLayout()
+            vbox.addStretch(1)
+            vbox.addWidget(currentuser)
+            self.newWindow = TableWindow()
+            self.newWindow.setLayout(vbox)
+            self.newWindow.show()
+            ok = QPushButton("Ok")
+            ok.clicked.connect(self.newWindow.close)
+            vbox.addWidget(ok)
+
+        else:
+            messagebox.showwarning("Error", "Username or password incorrect")
 
 
     def go_to_register(self):
