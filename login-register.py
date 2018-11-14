@@ -29,7 +29,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QFormLayout,
     QDialog,
-    QLayout,
     QHBoxLayout,
     QGridLayout
 )
@@ -75,6 +74,7 @@ class MainWindow(QWidget):
 
         self.register_button.clicked.connect(self.go_to_register)
         self.login_button.clicked.connect(self.check_user)
+        self.login_button.clicked.connect(self.close)
         # self.user_line_edit.textChanged.connect(self.enable_login_button)
 
         self.vbox = QVBoxLayout()
@@ -101,7 +101,84 @@ class MainWindow(QWidget):
         self.LogOut = QPushButton("Log Out")
 
     #layout of page
-        layout = QGridLayout()
+        self.layout = QGridLayout()
+        layout = self.layout
+        layout.setColumnStretch(1,3)
+        layout.setRowStretch(1,3)
+
+    #placement layout of page
+        layout.addWidget(self.SearchExhibits,1,0)
+        layout.addWidget(self.ViewExhibit, 1,1)
+        layout.addWidget(self.SearchShows, 2,0)
+        layout.addWidget(self.ViewShow, 2,1)
+        layout.addWidget(self.SearchAnimals, 3,0)
+        layout.addWidget(self.LogOut, 3,1)
+
+    # #button connections
+    #         self.SearchExhibits.clicked.connect(self.search_exhibits)
+    #         self.SearchShows.clicked.connect(self.search_shows)
+    #         self.SearchAnimals.clicked.connect(self.search_animals)
+
+        self.newWindow = TableWindow()
+        self.newWindow.setLayout(layout)
+        self.newWindow.show()
+        self.LogOut.clicked.connect(self.newWindow.close)
+        self.LogOut.clicked.connect(self.close)
+        layout.addWidget(self.LogOut)
+
+
+    def admin_functionality(self, my_user):
+    #buttons that appear on main page
+        self.ViewVisitors = QPushButton("View Visitors")
+        self.ViewShows = QPushButton("View Shows")
+        self.ViewStaff = QPushButton("View Staff")
+        self.AddShow = QPushButton("Add Show")
+        self.ViewAnimals = QPushButton("View Animals")
+
+
+        self.LogOut = QPushButton("Log Out")
+
+    #layout of page
+        self.layout = QGridLayout()
+        layout = self.layout
+        layout.setColumnStretch(1,3)
+        layout.setRowStretch(1,3)
+
+    #placement layout of page
+        layout.addWidget(self.ViewVisitors,1,0)
+        layout.addWidget(self.ViewStaff, 1,1)
+        layout.addWidget(self.ViewShows,2,0)
+        layout.addWidget(self.ViewAnimals, 2,1)
+        layout.addWidget(self.AddShow,3,0)
+        layout.addWidget(self.LogOut, 3,1)
+
+    # #button connections
+    #         self.SearchExhibits.clicked.connect(self.search_exhibits)
+    #         self.SearchShows.clicked.connect(self.search_shows)
+    #         self.SearchAnimals.clicked.connect(self.search_animals)
+
+        self.newWindow = TableWindow()
+        self.newWindow.setLayout(layout)
+        self.newWindow.show()
+        self.LogOut.clicked.connect(self.newWindow.close)
+        self.LogOut.clicked.connect(self.close)
+        layout.addWidget(self.LogOut)
+
+
+
+    def staff_functionality(self, my_user):
+
+    #buttons that appear on main page
+        self.SearchExhibits = QPushButton("Seach Exhibits")
+        self.SearchShows = QPushButton("Seach Shows")
+        self.SearchAnimals = QPushButton("Search for Animals")
+        self.ViewExhibit = QPushButton("View Exhibit History")
+        self.ViewShow = QPushButton("View Show History")
+        self.LogOut = QPushButton("Log Out")
+
+    #layout of page
+        self.layout = QGridLayout()
+        layout = self.layout
         layout.setColumnStretch(1,3)
         layout.setRowStretch(1,3)
 
@@ -118,8 +195,13 @@ class MainWindow(QWidget):
     #         self.SearchShows.clicked.connect(self.search_shows)
     #         self.SearchAnimals.clicked.connect(self.search_animals)
 
-        self.setLayout(layout)
-        self.show()
+        self.newWindow = TableWindow()
+        self.newWindow.setLayout(layout)
+        self.newWindow.show()
+        self.LogOut.clicked.connect(self.newWindow.close)
+        self.LogOut.clicked.connect(self.close)
+        layout.addWidget(self.LogOut)
+
 
     # check_user currently can only display the tuple from our database from which we query the row that matches the user and the password
     def check_user(self):
@@ -133,8 +215,12 @@ class MainWindow(QWidget):
         self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
         my_user = self.c.fetchone()
         print(my_user)
-        if (my_user[3] == 'admin'):
+        if (my_user[3] == 'visitor'):
             self.visitor_functionality(my_user)
+        elif (my_user[3] == 'admin'):
+            self.admin_functionality(my_user)
+        elif (my_user[3] == 'staff'):
+            self.staff_functionality(my_user)
         else:
             messagebox.showwarning("Error", "Username or password incorrect")
 
