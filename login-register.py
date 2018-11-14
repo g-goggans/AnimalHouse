@@ -91,6 +91,36 @@ class MainWindow(QWidget):
         self.vbox.addWidget(self.register_button)
         self.setLayout(self.vbox)
 
+    def visitor_functionality(self, my_user):
+    #buttons that appear on main page
+        self.SearchExhibits = QPushButton("Seach Exhibits")
+        self.SearchShows = QPushButton("Seach Shows")
+        self.SearchAnimals = QPushButton("Search for Animals")
+        self.ViewExhibit = QPushButton("View Exhibit History")
+        self.ViewShow = QPushButton("View Show History")
+        self.LogOut = QPushButton("Log Out")
+
+    #layout of page
+        layout = QGridLayout()
+        layout.setColumnStretch(1,3)
+        layout.setRowStretch(1,3)
+
+    #placement layout of page
+        layout.addWidget(self.SearchExhibits,1,0)
+        layout.addWidget(self.ViewExhibit, 1,1)
+        layout.addWidget(self.SearchShows,2,0)
+        layout.addWidget(self.ViewShow, 2,1)
+        layout.addWidget(self.SearchAnimals,3,0)
+        layout.addWidget(self.LogOut, 3,1)
+
+    # #button connections
+    #         self.SearchExhibits.clicked.connect(self.search_exhibits)
+    #         self.SearchShows.clicked.connect(self.search_shows)
+    #         self.SearchAnimals.clicked.connect(self.search_animals)
+
+        self.setLayout(layout)
+        self.show()
+
     # check_user currently can only display the tuple from our database from which we query the row that matches the user and the password
     def check_user(self):
         user = str(self.user_line_edit.text())
@@ -101,25 +131,15 @@ class MainWindow(QWidget):
 
         # tuple for logged in user
         self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
-        if (self.c.fetchall()):
-
-            currentuser = QLabel() # this will display the tuple of the sql statement
-            mystr = "" # turns the tuple into a string for printing
-            for i in self.c.fetchall():
-                mystr += str(i)
-            currentuser.setText(mystr)
-            vbox = QVBoxLayout()
-            vbox.addStretch(1)
-            vbox.addWidget(currentuser)
-            self.newWindow = TableWindow()
-            self.newWindow.setLayout(vbox)
-            self.newWindow.show()
-            ok = QPushButton("Ok")
-            ok.clicked.connect(self.newWindow.close)
-            vbox.addWidget(ok)
-
+        my_user = self.c.fetchone()
+        print(my_user)
+        if (my_user[3] == 'admin'):
+            self.visitor_functionality(my_user)
         else:
             messagebox.showwarning("Error", "Username or password incorrect")
+
+
+
 
 
     def go_to_register(self):
@@ -269,8 +289,8 @@ if __name__=='__main__':
     main = MainWindow()
     main.show()
     sys.exit(app.exec_())
-    
-    
+
+
 #import sqlite3
 # import sys
 # import tkinter as tk
@@ -294,7 +314,7 @@ if __name__=='__main__':
 #         super(MainWindow, self).__init__()
 #         self.setWindowTitle('Atlanta Zoo')
 #         makewin = self.visitor_functionality()
-       
+
 
 #     def visitor_functionality(self):
 # #buttons that appear on main page
@@ -326,7 +346,7 @@ if __name__=='__main__':
 #         self.setLayout(layout)
 #         self.show()
 
-        
+
 
 #     def search_exhibits(self):
 #         self.setWindowTitle('Exhibits')
@@ -347,7 +367,7 @@ if __name__=='__main__':
 #         self.wsizeMax = QLineEdit()
 #         self.Water = QLabel("Water Feature")
 #         self.waterDrop = QComboBox()
-        
+
 #         self.waterDrop.addItems(["","Yes","No"])
 #         self.db = self.Connect()
 #         self.c = self.db.cursor()
@@ -439,7 +459,7 @@ if __name__=='__main__':
 #                 count2 += 1
 #         if ((count == 0) and (count2 == 0)):
 #             print("here")
-#         else: 
+#         else:
 #             messagebox.showwarning("Error", printstr)
 #             #print(printstr)
 
@@ -448,7 +468,7 @@ if __name__=='__main__':
 #         SSlayout = QGridLayout()
 
 #         self.title1 = QLabel("Atalnta Zoo")
-#         self.title2 = QLabel("Shows")       
+#         self.title2 = QLabel("Shows")
 #         self.search = QPushButton("search")
 #         self.name = QLabel("Name: ")
 #         self.wname = QLineEdit()
@@ -466,7 +486,7 @@ if __name__=='__main__':
 #         self.db = self.Connect()
 #         self.c = self.db.cursor()
 #         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-        
+
 #         #exhibit drop down menu contents
 #         result = self.c.fetchall()
 #         exDrop = [""]
@@ -494,7 +514,7 @@ if __name__=='__main__':
 #         SSlayout.setColumnStretch(1,3)
 #         SSlayout.setRowStretch(1,3)
 #         SSlayout.addWidget(self.title1,1,0)
-#         SSlayout.addWidget(self.title2, 1,2)        
+#         SSlayout.addWidget(self.title2, 1,2)
 #         SSlayout.addWidget(self.search,3,3)
 #         SSlayout.addWidget(self.name, 2,0)
 #         SSlayout.addWidget(self.wname,2,1)
@@ -514,18 +534,18 @@ if __name__=='__main__':
 #         SAlayout = QGridLayout()
 
 #         self.title1 = QLabel("Atalnta Zoo")
-#         self.title2 = QLabel("Animals")       
+#         self.title2 = QLabel("Animals")
 #         self.search = QPushButton("search")
 #         self.name = QLabel("Name: ")
 #         self.wname = QLineEdit()
 #         self.wname = QLineEdit()
 #         self.age = QLabel("Age: ")
-#         self.minAge = QLabel("min")        
+#         self.minAge = QLabel("min")
 #         self.wminAge = QLineEdit()
 #         self.maxAge = QLabel("max")
 #         self.Species = QLabel("Species: ")
 #         self.wSpecies = QLineEdit()
-#         self.wmaxAge = QLineEdit()        
+#         self.wmaxAge = QLineEdit()
 #         self.exhibit = QLabel("Exhibit: ")
 #         self.exhibitDrop = QComboBox()
 #         self.table = QTableView()
@@ -537,7 +557,7 @@ if __name__=='__main__':
 #         self.db = self.Connect()
 #         self.c = self.db.cursor()
 #         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-        
+
 #         #exhibit drop down menu contents
 #         result = self.c.fetchall()
 #         exDrop = [""]
@@ -565,7 +585,7 @@ if __name__=='__main__':
 #         SAlayout.setColumnStretch(1,3)
 #         SAlayout.setRowStretch(1,2)
 #         SAlayout.addWidget(self.title1,1,0)
-#         SAlayout.addWidget(self.title2, 1,2)        
+#         SAlayout.addWidget(self.title2, 1,2)
 #         SAlayout.addWidget(self.search,2,3)
 #         SAlayout.addWidget(self.name, 2,0)
 #         SAlayout.addWidget(self.wname,2,1)
@@ -593,9 +613,9 @@ if __name__=='__main__':
 #             return db
 #         except:
 #             messagebox.showwarning("Error", "Check Internet Connection")
-       
-        
-        
+
+
+
 
 
 
