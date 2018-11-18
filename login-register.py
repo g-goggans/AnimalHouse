@@ -138,8 +138,7 @@ class MainWindow(QWidget):
         self.ViewStaff = QPushButton("View Staff")
         self.AddShow = QPushButton("Add Show")
         self.ViewAnimals = QPushButton("View Animals")
-
-
+        self.AddAnimals = QPushButton("Add Animal")
         self.LogOut = QPushButton("Log Out")
 
     #layout of page
@@ -149,10 +148,11 @@ class MainWindow(QWidget):
         layout.setRowStretch(1,3)
 
     #placement layout of page
-        layout.addWidget(self.ViewVisitors,1,0)
-        layout.addWidget(self.ViewStaff, 1,1)
-        layout.addWidget(self.ViewShows,2,0)
-        layout.addWidget(self.ViewAnimals, 2,1)
+        layout.addWidget(self.ViewVisitors,0,0)
+        layout.addWidget(self.ViewStaff, 0,1)
+        layout.addWidget(self.ViewShows,1,0)
+        layout.addWidget(self.ViewAnimals, 1,1)
+        layout.addWidget(self.AddAnimals,2,0)
         layout.addWidget(self.AddShow,3,0)
         layout.addWidget(self.LogOut, 3,1)
 
@@ -162,10 +162,179 @@ class MainWindow(QWidget):
         self.newWindow.show()
         self.ViewShows.clicked.connect(self.admin_view_shows)
         self.ViewAnimals.clicked.connect(self.admin_view_animals)
+        self.AddAnimals.clicked.connect(self.admin_add_animals)
+        self.ViewStaff.clicked.connect(self.admin_view_staff)
+        self.ViewVisitors.clicked.connect(self.admin_view_visitor)
+        self.AddShow.clicked.connect(self.admin_add_show)
+
+
         self.LogOut.clicked.connect(self.newWindow.close)
         self.LogOut.clicked.connect(self.close)
         layout.addWidget(self.LogOut)
-        
+
+    def admin_add_show(self):
+        self.setWindowTitle('Add Show')
+        SAlayout = QGridLayout()
+
+        self.name = QLabel("Name: ")
+        self.wname = QLineEdit()
+        self.exhibit = QLabel("Exhibit: ")
+        self.exhibitDrop = QComboBox()
+        self.staff = QLabel("Staff: ")
+        self.staffDrop = QComboBox()
+        self.date = QLabel("Date: ")
+        self.wdate = QLineEdit()
+        self.time = QLabel("Time: ")
+        self.wtime = QLineEdit()
+
+        self.AddShow = QPushButton("Add Show")
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
+
+#exhibit drop down menu contents
+        result = self.c.fetchall()
+        exDrop = [""]
+        for i in result:
+            exDrop.append(i[0])
+        print(exDrop)
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username FROM USERS where user_type = 'staff'")
+
+#type drop down menu contents
+        result2 = self.c.fetchall()
+        stDrop = [""]
+        for i in result:
+            stDrop.append(i[0])
+        print(stDrop)
+
+        self.exhibitDrop.addItems(exDrop)
+        self.staffDrop.addItems(stDrop)
+
+        SAlayout = QGridLayout()
+        SAlayout.setColumnStretch(1,6)
+        SAlayout.setRowStretch(1,10)
+        SAlayout.addWidget(self.name, 1,0)
+        SAlayout.addWidget(self.wname,2,0)
+        SAlayout.addWidget(self.exhibit,3,0)
+        SAlayout.addWidget(self.exhibitDrop,4,0)
+        SAlayout.addWidget(self.staff,5,0)
+        SAlayout.addWidget(self.staffDrop,6,0)
+        SAlayout.addWidget(self.date,7,0)
+        SAlayout.addWidget(self.wdate, 8,0)
+        SAlayout.addWidget(self.time, 9,0)
+        SAlayout.addWidget(self.wtime,10,0)
+        SAlayout.addWidget(self.AddShow,5,1)
+
+        self.add_shows = QDialog()
+        self.add_shows.setLayout(SAlayout)
+        self.add_shows.show()
+
+
+
+    def admin_view_staff(self):
+        print("view_staff")
+        self.setWindowTitle('View Staff')
+        SAlayout = QGridLayout()
+
+        self.RemoveStaff = QPushButton("Remove Staff Member")
+        self.table = QTableView()
+        self.model = QStandardItemModel()
+        self.model.setColumnCount(2)
+        headerNames = ["Username", "Email"]
+        self.model.setHorizontalHeaderLabels(headerNames)
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username, email FROM USERS")
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username,email from USERS Where user_type = 'staff'")
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+#converts item to list from tuple
+            for j in i:
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+
+        self.table.setModel(self.model)
+
+        SAlayout = QGridLayout()
+        SAlayout.setColumnStretch(1,8)
+        SAlayout.setRowStretch(1,4)
+        SAlayout.addWidget(self.table,6,0,4,4)
+        SAlayout.addWidget(self.RemoveStaff,10,4)
+
+        self.view_staff = QDialog()
+        self.view_staff.setLayout(SAlayout)
+        self.view_staff.show()
+
+    def admin_add_animals(self):
+        self.setWindowTitle('Add Animal')
+        SAlayout = QGridLayout()
+
+        self.name = QLabel("Name: ")
+        self.wname = QLineEdit()
+        self.exhibit = QLabel("Exhibit: ")
+        self.exhibitDrop = QComboBox()
+        self.type = QLabel("Type: ")
+        self.typeDrop = QComboBox()
+        self.Species = QLabel("Species: ")
+        self.wSpecies = QLineEdit()
+        self.Age = QLabel("Age: ")
+        self.wAge = QLineEdit()
+
+        self.AddAnimal = QPushButton("Add Animal")
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
+
+        #exhibit drop down menu contents
+        result = self.c.fetchall()
+        exDrop = [""]
+        for i in result:
+            exDrop.append(i[0])
+        print(exDrop)
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT type FROM ANIMALS")
+
+        #type drop down menu contents
+        result2 = self.c.fetchall()
+        typDrop = [""]
+        for i in result:
+            typDrop.append(i[0])
+        print(typDrop)
+
+        self.exhibitDrop.addItems(exDrop)
+        self.typeDrop.addItems(typDrop)
+
+        SAlayout = QGridLayout()
+        SAlayout.setColumnStretch(1,6)
+        SAlayout.setRowStretch(1,10)
+        SAlayout.addWidget(self.name, 1,0)
+        SAlayout.addWidget(self.wname,2,0)
+        SAlayout.addWidget(self.exhibit,3,0)
+        SAlayout.addWidget(self.exhibitDrop,4,0)
+        SAlayout.addWidget(self.type,5,0)
+        SAlayout.addWidget(self.typeDrop,6,0)
+        SAlayout.addWidget(self.Species,7,0)
+        SAlayout.addWidget(self.wSpecies, 8,0)
+        SAlayout.addWidget(self.Age, 9,0)
+        SAlayout.addWidget(self.wAge,10,0)
+        SAlayout.addWidget(self.AddAnimal,5,1)
+
+        self.add_animals = QDialog()
+        self.add_animals.setLayout(SAlayout)
+        self.add_animals.show()
+
     def admin_view_visitor(self):
         self.setWindowTitle('View Visitors')
         SAlayout = QGridLayout()
@@ -227,11 +396,13 @@ class MainWindow(QWidget):
         self.newWindow.setLayout(layout)
         self.newWindow.show()
         self.ViewShows.clicked.connect(self.staff_view_shows)
+        self.SearchAnimals.clicked.connect(self.staff_search_animals)
 
         self.LogOut.clicked.connect(self.newWindow.close)
 
         self.LogOut.clicked.connect(self.close)
         layout.addWidget(self.LogOut)
+
 
     def visitor_search_exhibits(self):
         self.setWindowTitle('Exhibits')
@@ -1207,12 +1378,13 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         printstr = ""
         count = 0
+        count2 = 0
 
 #conducting checks for registration information for visitors
         if len(self.pswd) < 8:
             #print("Password needs to be more than 8 characters")
             printstr += "Password needs to be more than 8 characters\n"
-            count+=1
+            count += 1
 
         if self.confirmpswd != self.pswd:
             #print("Password must match Confirm Password")
@@ -1224,6 +1396,10 @@ class MainWindow(QWidget):
             printstr += "Email must meet email format with @ and . symbols\n"
             count+=1
 
+        if len(self.user) == 0:
+            printstr += "Username input needed \n"
+            count+=1
+
         if count > 0:
             messagebox.showwarning("Error", printstr)
 
@@ -1232,6 +1408,7 @@ class MainWindow(QWidget):
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"visitor"))
 
         self.go_to_register.close()
+
 
 
     def register_staff(self):
