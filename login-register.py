@@ -92,7 +92,7 @@ class MainWindow(QWidget):
         self.setLayout(self.vbox)
 
     def visitor_functionality(self, my_user):
-#buttons that appear on main page
+    #buttons that appear on main page
         self.SearchExhibits = QPushButton("Search Exhibits")
         self.SearchShows = QPushButton("Search Shows")
         self.SearchAnimals = QPushButton("Search for Animals")
@@ -100,13 +100,13 @@ class MainWindow(QWidget):
         self.ViewShow = QPushButton("View Show History")
         self.LogOut = QPushButton("Log Out")
 
-#layout of page
+    #layout of page
         self.layout = QGridLayout()
         layout = self.layout
         layout.setColumnStretch(1,3)
         layout.setRowStretch(1,3)
 
-#placement layout of page
+    #placement layout of page
         layout.addWidget(self.SearchExhibits,1,0)
         layout.addWidget(self.ViewExhibit, 1,1)
         layout.addWidget(self.SearchShows, 2,0)
@@ -114,12 +114,10 @@ class MainWindow(QWidget):
         layout.addWidget(self.SearchAnimals, 3,0)
         layout.addWidget(self.LogOut, 3,1)
 
-#button connections
-        self.SearchExhibits.clicked.connect(self.visitor_search_exhibits)
-        self.ViewExhibit.clicked.connect(self.Visitor_Exhibit_History)
-        self.SearchShows.clicked.connect(self.visitor_search_shows)
-        self.ViewShow.clicked.connect(self.Visitor_Show_History)
-        self.SearchAnimals.clicked.connect(self.visitor_search_animals)
+    #button connections
+        self.SearchExhibits.clicked.connect(self.search_exhibits)
+        self.SearchShows.clicked.connect(self.search_shows)
+        # self.SearchAnimals.clicked.connect(self.search_animals)
 
         self.newWindow = TableWindow()
         self.newWindow.setLayout(layout)
@@ -130,7 +128,7 @@ class MainWindow(QWidget):
 
 
     def admin_functionality(self, my_user):
-#buttons that appear on main page
+    #buttons that appear on main page
         self.ViewVisitors = QPushButton("View Visitors")
         self.ViewShows = QPushButton("View Shows")
         self.ViewStaff = QPushButton("View Staff")
@@ -140,13 +138,13 @@ class MainWindow(QWidget):
 
         self.LogOut = QPushButton("Log Out")
 
-#layout of page
+    #layout of page
         self.layout = QGridLayout()
         layout = self.layout
         layout.setColumnStretch(1,3)
         layout.setRowStretch(1,3)
 
-#placement layout of page
+    #placement layout of page
         layout.addWidget(self.ViewVisitors,1,0)
         layout.addWidget(self.ViewStaff, 1,1)
         layout.addWidget(self.ViewShows,2,0)
@@ -154,12 +152,14 @@ class MainWindow(QWidget):
         layout.addWidget(self.AddShow,3,0)
         layout.addWidget(self.LogOut, 3,1)
 
+    # #button connections
+    #         self.SearchExhibits.clicked.connect(self.search_exhibits)
+    #         self.SearchShows.clicked.connect(self.search_shows)
+    #         self.SearchAnimals.clicked.connect(self.search_animals)
 
         self.newWindow = TableWindow()
         self.newWindow.setLayout(layout)
         self.newWindow.show()
-        self.ViewShows.clicked.connect(self.admin_view_shows)
-        self.ViewAnimals.clicked.connect(self.admin_view_animals)
         self.LogOut.clicked.connect(self.newWindow.close)
         self.LogOut.clicked.connect(self.close)
         layout.addWidget(self.LogOut)
@@ -168,7 +168,7 @@ class MainWindow(QWidget):
 
     def staff_functionality(self, my_user):
 
-#buttons that appear on main page
+    #buttons that appear on main page
         self.SearchExhibits = QPushButton("Seach Exhibits")
         self.SearchShows = QPushButton("Seach Shows")
         self.SearchAnimals = QPushButton("Search for Animals")
@@ -176,13 +176,13 @@ class MainWindow(QWidget):
         self.ViewShow = QPushButton("View Show History")
         self.LogOut = QPushButton("Log Out")
 
-#layout of page
+    #layout of page
         self.layout = QGridLayout()
         layout = self.layout
         layout.setColumnStretch(1,3)
         layout.setRowStretch(1,3)
 
-#placement layout of page
+    #placement layout of page
         layout.addWidget(self.SearchExhibits,1,0)
         layout.addWidget(self.ViewExhibit, 1,1)
         layout.addWidget(self.SearchShows,2,0)
@@ -190,6 +190,10 @@ class MainWindow(QWidget):
         layout.addWidget(self.SearchAnimals,3,0)
         layout.addWidget(self.LogOut, 3,1)
 
+    # #button connections
+    #         self.SearchExhibits.clicked.connect(self.search_exhibits)
+    #         self.SearchShows.clicked.connect(self.search_shows)
+    #         self.SearchAnimals.clicked.connect(self.search_animals)
 
         self.newWindow = TableWindow()
         self.newWindow.setLayout(layout)
@@ -198,9 +202,7 @@ class MainWindow(QWidget):
         self.LogOut.clicked.connect(self.close)
         layout.addWidget(self.LogOut)
 
-        self.SearchAnimals.clicked.connect(self.staff_search_animals)
-
-    def visitor_search_exhibits(self):
+    def search_exhibits(self):
         self.setWindowTitle('Exhibits')
         SElayout = QGridLayout()
 
@@ -270,9 +272,9 @@ class MainWindow(QWidget):
         self.search_exhibits.setLayout(SElayout)
         self.search_exhibits.show()
 
-        self.search.clicked.connect(self.visitor_exhibit_search_button)
+        self.search.clicked.connect(self.exhibitSearch)
 
-    def visitor_exhibit_search_button(self):
+    def exhibitSearch(ds):
         self.animalMin = str(self.wanimalMin.text())
         self.animalMax = str(self.wanimalMax.text())
         self.sizeMin = str(self.wsizeMin.text())
@@ -315,129 +317,7 @@ class MainWindow(QWidget):
             messagebox.showwarning("Error", printstr)
             #print(printstr)
 
-    def Visitor_Exhibit_History(self):
-        self.setWindowTitle('Exhibit History')
-        SSlayout = QGridLayout()
-
-        self.search = QPushButton("search")
-        
-        self.name = QLabel("Name: ")
-        self.wname = QLineEdit()
-        
-        self.date = QLabel("Date: ")
-        self.dateDrop = QComboBox() #this is wrong implementation
-        
-        self.NumVisits = QLabel("Number of Visits: ")
-        self.minVisits = QLineEdit()
-        self.maxVisits = QLineEdit()
-        self.minVisitsLabel = QLabel("Min")
-        self.maxVisitsLabel = QLabel("Max")
-
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-
-# #fill dedfault table
-#         self.c = self.db.cursor()
-#         self.c.execute("SELECT exhibit_name, datetime, (SELECT COUNT()) FROM EXHIBITS")
-#         result = self.c.fetchall()
-#         for i in result:
-#             row = []
-# #converts item to list from tuple
-#             for j in i:  
-#                 item = QStandardItem(str(j)) 
-# #has to be converted to string in order to work
-#                 item.setEditable(False)
-#                 row.append(item)
-#             self.model.appendRow(row)
-
-#         self.table.setModel(self.model)
-
-        SSlayout = QGridLayout()
-        SSlayout.setColumnStretch(1,3)
-        SSlayout.setRowStretch(1,3)
-        SSlayout.addWidget(self.search,3,3)
-        SSlayout.addWidget(self.name, 1,0)
-        SSlayout.addWidget(self.wname,1,1)
-        SSlayout.addWidget(self.date,2,0)
-        SSlayout.addWidget(self.dateDrop,2,1)
-        SSlayout.addWidget(self.NumVisits,1,2)
-        SSlayout.addWidget(self.minVisitsLabel,0,3)
-        SSlayout.addWidget(self.maxVisitsLabel,0,4)
-        SSlayout.addWidget(self.maxVisits,1,4)
-        SSlayout.addWidget(self.minVisits,1,3)
-        SSlayout.addWidget(self.table,4,0,4,4)
-
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SSlayout)
-        self.search_exhibits.show()
-
-    def Visitor_Show_History(self):
-        self.setWindowTitle('Show History')
-        SSlayout = QGridLayout()
-
-        self.search = QPushButton("search")
-        
-        self.name = QLabel("Name: ")
-        self.wname = QLineEdit()
-        
-        self.date = QLabel("Date: ")
-        self.dateDrop = QComboBox() #this is wrong implementation
-        
-        self.exhibit_name = QLabel("Exhibit")
-        self.exhibitDrop = QComboBox()
-
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-
-#fill dedfault table
-        self.c = self.db.cursor()
-        self.c.execute("SELECT show_name, datetime, exhibit_name FROM SHOWS")
-        result = self.c.fetchall()
-        for i in result:
-            row = []
-#converts item to list from tuple
-            for j in i:  
-                item = QStandardItem(str(j)) 
-#has to be converted to string in order to work
-                item.setEditable(False)
-                row.append(item)
-            self.model.appendRow(row)
-
-        self.table.setModel(self.model)
-
-        SSlayout = QGridLayout()
-        SSlayout.setColumnStretch(1,3)
-        SSlayout.setRowStretch(1,3)
-        SSlayout.addWidget(self.search,3,3)
-        SSlayout.addWidget(self.name, 1,0)
-        SSlayout.addWidget(self.wname,1,1)
-        SSlayout.addWidget(self.date,2,0)
-        SSlayout.addWidget(self.dateDrop,2,1)
-        SSlayout.addWidget(self.exhibit_name,1,2)
-        SSlayout.addWidget(self.exhibitDrop,1,3)
-        SSlayout.addWidget(self.table,4,0,4,4)
-
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SSlayout)
-        self.search_exhibits.show()
-
-    def visitor_search_shows(self):
+    def search_shows(self):
         self.setWindowTitle('Shows')
         SSlayout = QGridLayout()
 
@@ -461,14 +341,14 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
 
-#exhibit drop down menu contents
+        #exhibit drop down menu contents
         result = self.c.fetchall()
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
         print(exDrop)
 
-#fill dedfault table
+        #fill dedfault table
         self.c = self.db.cursor()
         self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS")
         result = self.c.fetchall()
@@ -503,384 +383,9 @@ class MainWindow(QWidget):
         self.search_exhibits.setLayout(SSlayout)
         self.search_exhibits.show()
 
-    def visitor_search_animals(self):
-        self.setWindowTitle('Shows')
-        SAlayout = QGridLayout()
-
-        self.title1 = QLabel("Atalnta Zoo")
-        self.title2 = QLabel("Animals")
-        self.search = QPushButton("search")
-        self.name = QLabel("Name: ")
-        self.wname = QLineEdit()
-        self.wname = QLineEdit()
-        self.age = QLabel("Age: ")
-        self.minAge = QLabel("min")
-        self.wminAge = QLineEdit()
-        self.maxAge = QLabel("max")
-        self.Species = QLabel("Species: ")
-        self.wSpecies = QLineEdit()
-        self.wmaxAge = QLineEdit()
-        self.exhibit = QLabel("Exhibit: ")
-        self.exhibitDrop = QComboBox()
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-#exhibit drop down menu contents
-        result = self.c.fetchall()
-        exDrop = [""]
-        for i in result:
-            exDrop.append(i[0])
-        print(exDrop)
-
-#fill dedfault table
-        self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS")
-        result = self.c.fetchall()
-        for i in result:
-            row = []
-#converts item to list from tuple
-            for j in i:  
-                item = QStandardItem(str(j)) #has to be converted to string in order to work
-                item.setEditable(False)
-                row.append(item)
-            self.model.appendRow(row)
-
-        self.exhibitDrop.addItems(exDrop)
-        self.table.setModel(self.model)
-
-        SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,3)
-        SAlayout.setRowStretch(1,2)
-        SAlayout.addWidget(self.title1,1,0)
-        SAlayout.addWidget(self.title2, 1,2)
-        SAlayout.addWidget(self.search,2,3)
-        SAlayout.addWidget(self.name, 2,0)
-        SAlayout.addWidget(self.wname,2,1)
-        SAlayout.addWidget(self.Species,3,0)
-        SAlayout.addWidget(self.wSpecies, 3,1)
-        SAlayout.addWidget(self.age, 5,0)
-        SAlayout.addWidget(self.maxAge,4,1)
-        SAlayout.addWidget(self.minAge,4,2)
-        SAlayout.addWidget(self.wminAge,5,1)
-        SAlayout.addWidget(self.wmaxAge,5,2)
-        SAlayout.addWidget(self.exhibit,3,2)
-        SAlayout.addWidget(self.exhibitDrop,3,3)
-        SAlayout.addWidget(self.table,6,0,4,4)
-
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SAlayout)
-        self.search_exhibits.show()
 
 
-
-
-
-    def staff_search_animals(self):
-        self.setWindowTitle('Animals')
-        SAlayout = QGridLayout()
-
-
-        self.name = QLabel("Name: ")
-        self.wname = QLineEdit()
-        self.wname = QLineEdit()
-        
-        self.age = QLabel("Age: ")
-        self.minAge = QLabel("min")
-        self.wminAge = QLineEdit()
-        self.maxAge = QLabel("max")
-        self.wmaxAge = QLineEdit()
-        
-        self.Species = QLabel("Species: ")
-        self.wSpecies = QLineEdit()
-
-        self.Type = QLabel("Type: ")
-        self.typeDrop = QComboBox()
-
-        self.exhibit = QLabel("Exhibit: ")
-        self.exhibitDrop = QComboBox()
-        
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-#exhibit drop down menu contents
-        result = self.c.fetchall()
-        exDrop = [""]
-        for i in result:
-            exDrop.append(i[0])
-        print(exDrop)
-
-#fill dedfault table
-        self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS")
-        result = self.c.fetchall()
-        for i in result:
-            row = []
-#converts item to list from tuple
-            for j in i:  
-                item = QStandardItem(str(j)) 
-#has to be converted to string in order to work
-                item.setEditable(False)
-                row.append(item)
-            self.model.appendRow(row)
-
-        self.exhibitDrop.addItems(exDrop)
-        self.table.setModel(self.model)
-        self.table.doubleClicked.connect(self.staff_animal_care)
-
-        SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,3)
-        SAlayout.setRowStretch(1,2)
-        SAlayout.addWidget(self.name, 2,0)
-        SAlayout.addWidget(self.wname,2,1)
-        SAlayout.addWidget(self.Species,3,0)
-        SAlayout.addWidget(self.wSpecies, 3,1)
-        SAlayout.addWidget(self.Type,5,3)
-        SAlayout.addWidget(self.typeDrop,5,4)
-        SAlayout.addWidget(self.age, 5,0)
-        SAlayout.addWidget(self.maxAge,4,1)
-        SAlayout.addWidget(self.minAge,4,2)
-        SAlayout.addWidget(self.wminAge,5,1)
-        SAlayout.addWidget(self.wmaxAge,5,2)
-        SAlayout.addWidget(self.exhibit,3,2)
-        SAlayout.addWidget(self.exhibitDrop,3,3)
-        SAlayout.addWidget(self.table,6,0,4,4)
-
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SAlayout)
-        self.search_exhibits.show()
-
-
-
-
-    def staff_animal_care(self):
-
-        #This block helps us get the information from the row that was clicked in the animal search page
-        # row - signal.row()
-        # column = signal.column()
-        # cell_dict = self.model.item.Data(signal)
-        # cell_value = cell_dict.get(0)
-
-        a_name = str("Nemo")
-        a_spec = str("Clownfish")
-        a_age = str("1 month")
-        e_name = str("Pacific")
-        a_type = str("Fish")
-
-        self.setWindowTitle('Animal Detail')
-        SAlayout = QGridLayout()
-
-        self.name = QLabel("Name: " + a_name)
-        
-        self.age = QLabel("Age: " + a_age)
-
-        self.Species = QLabel("Species: " + a_spec)
-
-        self.Type = QLabel("Type: " + a_type)
-
-        self.exhibit = QLabel("Exhibit: " + e_name)
-
-        
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Staff Member", "Note","Time"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-#exhibit drop down menu contents
-        result = self.c.fetchall()
-        exDrop = [""]
-        for i in result:
-            exDrop.append(i[0])
-        print(exDrop)
-
-#fill dedfault table
-        self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS")
-        result = self.c.fetchall()
-        for i in result:
-            row = []
-#converts item to list from tuple
-            for j in i:  
-                item = QStandardItem(str(j)) 
-#has to be converted to string in order to work
-                item.setEditable(False)
-                row.append(item)
-            self.model.appendRow(row)
-
-        self.exhibitDrop.addItems(exDrop)
-        self.table.setModel(self.model)
-
-        SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,3)
-        SAlayout.setRowStretch(1,2)
-        SAlayout.addWidget(self.name, 2,0)
-        SAlayout.addWidget(self.Species,3,0)
-        SAlayout.addWidget(self.Type,5,3)
-        SAlayout.addWidget(self.age, 5,0)
-        SAlayout.addWidget(self.exhibit,3,2)
-        SAlayout.addWidget(self.table,6,0,4,4)
-
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SAlayout)
-        self.search_exhibits.show()
-
-
-    def admin_view_shows(self):
-        self.setWindowTitle('Shows')
-        SSlayout = QGridLayout()
-
-        self.search = QPushButton("Search")
-        self.name = QLabel("Name: ")
-        self.wname = QLineEdit()
-        self.date = QLabel("Date: ")
-        self.dateDrop = QComboBox() #this is wrong implementation
-        self.exhibit = QLabel("Exhibit: ")
-        self.exhibitDrop = QComboBox()
-        self.RemoveShow = QPushButton("Remove Show")
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-    #exhibit drop down menu contents
-        result = self.c.fetchall()
-        exDrop = [""]
-        for i in result:
-            exDrop.append(i[0])
-        print(exDrop)
-
-    #fill dedfault table
-        self.c = self.db.cursor()
-        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS")
-        result = self.c.fetchall()
-        for i in result:
-            row = []
-            for j in i:  #converts item to list from tuple
-                item = QStandardItem(str(j)) #has to be converted to string in order to work
-                item.setEditable(False)
-                row.append(item)
-                #print(row)
-            self.model.appendRow(row)
-
-        self.exhibitDrop.addItems(exDrop)
-        self.table.setModel(self.model)
-
-        SSlayout = QGridLayout()
-        SSlayout.setColumnStretch(1,3)
-        SSlayout.setRowStretch(1,3) 
-        SSlayout.addWidget(self.search,3,3)
-        SSlayout.addWidget(self.name, 2,0)
-        SSlayout.addWidget(self.wname,2,1)
-        SSlayout.addWidget(self.date,2,2)
-        SSlayout.addWidget(self.dateDrop,2,3)
-        SSlayout.addWidget(self.exhibit,3,0)
-        SSlayout.addWidget(self.exhibitDrop,3,1)
-        SSlayout.addWidget(self.table,4,0,4,4)
-        SSlayout.addWidget(self.RemoveShow,8,3)
-
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SSlayout)
-        self.search_exhibits.show()
-
-    def admin_view_animals(self):
-        self.setWindowTitle('Shows')
-        SAlayout = QGridLayout()
-
-        self.search = QPushButton("search")
-        self.name = QLabel("Name: ")
-        self.wname = QLineEdit()
-        self.wname = QLineEdit()
-        self.age = QLabel("Age: ")
-        self.minAge = QLabel("min")
-        self.wminAge = QLineEdit()
-        self.maxAge = QLabel("max")
-        self.Species = QLabel("Species: ")
-        self.wSpecies = QLineEdit()
-        self.wmaxAge = QLineEdit()
-        self.exhibit = QLabel("Exhibit: ")
-        self.exhibitDrop = QComboBox()
-        self.RemoveAnimal = QPushButton("Remove Animal")
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-#exhibit drop down menu contents
-        result = self.c.fetchall()
-        exDrop = [""]
-        for i in result:
-            exDrop.append(i[0])
-        print(exDrop)
-
-#fill dedfault table
-        self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS")
-        result = self.c.fetchall()
-        for i in result:
-            row = []
-#converts item to list from tuple
-            for j in i:  
-                item = QStandardItem(str(j)) #has to be converted to string in order to work
-                item.setEditable(False)
-                row.append(item)
-            self.model.appendRow(row)
-
-        self.exhibitDrop.addItems(exDrop)
-        self.table.setModel(self.model)
-
-        SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,3)
-        SAlayout.setRowStretch(1,2)
-        SAlayout.addWidget(self.search,2,3)
-        SAlayout.addWidget(self.name, 2,0)
-        SAlayout.addWidget(self.wname,2,1)
-        SAlayout.addWidget(self.Species,3,0)
-        SAlayout.addWidget(self.wSpecies, 3,1)
-        SAlayout.addWidget(self.age, 5,0)
-        SAlayout.addWidget(self.maxAge,4,1)
-        SAlayout.addWidget(self.minAge,4,2)
-        SAlayout.addWidget(self.wminAge,5,1)
-        SAlayout.addWidget(self.wmaxAge,5,2)
-        SAlayout.addWidget(self.exhibit,3,2)
-        SAlayout.addWidget(self.exhibitDrop,3,3)
-        SAlayout.addWidget(self.table,6,0,4,4)
-        SAlayout.addWidget(self.RemoveAnimal,10,4)
-
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SAlayout)
-        self.search_exhibits.show()
-
-
-
-# check_user currently can only display the tuple from our database from which we query the row that matches the user and the password
+    # check_user currently can only display the tuple from our database from which we query the row that matches the user and the password
     def check_user(self):
         user = str(self.user_line_edit.text())
         pswd = str(self.password_line_edit.text())
@@ -888,7 +393,7 @@ class MainWindow(QWidget):
         self.db = self.Connect()
         self.c = self.db.cursor()
 
- # tuple for logged in user
+        # tuple for logged in user
         self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
         my_user = self.c.fetchone()
         print(my_user)
@@ -1006,14 +511,17 @@ class MainWindow(QWidget):
 
 #conducting checks for registration information for staff
         if len(self.pswd) < 8:
+            #print("Password needs to be more than 8 characters")
             printstr += "Password needs to be more than 8 characters\n"
             count+=1
 
         if self.confirmpswd != self.pswd:
+            #print("Password must match Confirm Password")
             printstr += "Password must match Confirm Password\n"
             count+=1
 
         if "@" not in self.email or "." not in self.email:
+            #print("Email must meet email format with @ and . symbols")
             printstr += "Email must meet email format with @ and . symbols\n"
             count+=1
 
@@ -1224,7 +732,80 @@ if __name__=='__main__':
 #             #print(printstr)
 
 
+#     def search_animals(self):
+#         self.setWindowTitle('Shows')
+#         SAlayout = QGridLayout()
 
+#         self.title1 = QLabel("Atalnta Zoo")
+#         self.title2 = QLabel("Animals")
+#         self.search = QPushButton("search")
+#         self.name = QLabel("Name: ")
+#         self.wname = QLineEdit()
+#         self.wname = QLineEdit()
+#         self.age = QLabel("Age: ")
+#         self.minAge = QLabel("min")
+#         self.wminAge = QLineEdit()
+#         self.maxAge = QLabel("max")
+#         self.Species = QLabel("Species: ")
+#         self.wSpecies = QLineEdit()
+#         self.wmaxAge = QLineEdit()
+#         self.exhibit = QLabel("Exhibit: ")
+#         self.exhibitDrop = QComboBox()
+#         self.table = QTableView()
+#         self.model = QStandardItemModel()
+#         self.model.setColumnCount(3)
+#         headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+#         self.model.setHorizontalHeaderLabels(headerNames)
+
+#         self.db = self.Connect()
+#         self.c = self.db.cursor()
+#         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
+
+#         #exhibit drop down menu contents
+#         result = self.c.fetchall()
+#         exDrop = [""]
+#         for i in result:
+#             exDrop.append(i[0])
+#         print(exDrop)
+
+#         #fill dedfault table
+#         self.c = self.db.cursor()
+#         self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS")
+#         result = self.c.fetchall()
+#         for i in result:
+#             row = []
+#             for j in i:  #converts item to list from tuple
+#                 item = QStandardItem(str(j)) #has to be converted to string in order to work
+#                 item.setEditable(False)
+#                 row.append(item)
+#                 #print(row)
+#             self.model.appendRow(row)
+
+#         self.exhibitDrop.addItems(exDrop)
+#         self.table.setModel(self.model)
+
+#         SAlayout = QGridLayout()
+#         SAlayout.setColumnStretch(1,3)
+#         SAlayout.setRowStretch(1,2)
+#         SAlayout.addWidget(self.title1,1,0)
+#         SAlayout.addWidget(self.title2, 1,2)
+#         SAlayout.addWidget(self.search,2,3)
+#         SAlayout.addWidget(self.name, 2,0)
+#         SAlayout.addWidget(self.wname,2,1)
+#         SAlayout.addWidget(self.Species,3,0)
+#         SAlayout.addWidget(self.wSpecies, 3,1)
+#         SAlayout.addWidget(self.age, 5,0)
+#         SAlayout.addWidget(self.maxAge,4,1)
+#         SAlayout.addWidget(self.minAge,4,2)
+#         SAlayout.addWidget(self.wminAge,5,1)
+#         SAlayout.addWidget(self.wmaxAge,5,2)
+#         SAlayout.addWidget(self.exhibit,3,2)
+#         SAlayout.addWidget(self.exhibitDrop,3,3)
+#         SAlayout.addWidget(self.table,6,0,4,4)
+
+#         self.search_exhibits = QDialog()
+#         self.search_exhibits.setLayout(SAlayout)
+#         self.search_exhibits.show()
 
 #     def Connect(self):
 # #Connecting to the database, function used in multiple other areas around the code
