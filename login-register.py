@@ -165,6 +165,45 @@ class MainWindow(QWidget):
         self.LogOut.clicked.connect(self.newWindow.close)
         self.LogOut.clicked.connect(self.close)
         layout.addWidget(self.LogOut)
+        
+    def admin_view_visitor(self):
+        self.setWindowTitle('View Visitors')
+        SAlayout = QGridLayout()
+
+        self.RemoveVisitor = QPushButton("Remove Visitor")
+        self.table = QTableView()
+        self.model = QStandardItemModel()
+        self.model.setColumnCount(2)
+        headerNames = ["Username", "Email"]
+        self.model.setHorizontalHeaderLabels(headerNames)
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username, email FROM USERS")
+
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username,email from USERS Where user_type = 'visitor'")
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+    #converts item to list from tuple
+            for j in i:
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+
+        self.table.setModel(self.model)
+
+        SAlayout = QGridLayout()
+        SAlayout.setColumnStretch(1,8)
+        SAlayout.setRowStretch(1,4)
+        SAlayout.addWidget(self.table,6,0,4,4)
+        SAlayout.addWidget(self.RemoveVisitor,10,4)
+
+        self.view_visitors = QDialog()
+        self.view_visitors.setLayout(SAlayout)
+        self.view_visitors.show()
 
 
 
@@ -851,6 +890,12 @@ class MainWindow(QWidget):
 
     def staff_view_shows(self):
         self.setWindowTitle('Shows')
+
+        atlantaZoo = QLabel()
+        atlantaZoo.setText("Atlanta Zoo")
+        showHistory = QLabel()
+        showHistory.setText("Staff - Show History")
+
         SSlayout = QGridLayout()
         self.table = QTableView()
         self.model = QStandardItemModel()
@@ -876,6 +921,8 @@ class MainWindow(QWidget):
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
         SSlayout.setRowStretch(1,3)
+        SSlayout.addWidget(atlantaZoo,0,0)
+        SSlayout.addWidget(showHistory)
         SSlayout.addWidget(self.table,4,0,4,4)
 
         self.search_exhibits = QDialog()
