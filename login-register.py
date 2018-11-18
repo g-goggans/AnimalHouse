@@ -66,6 +66,7 @@ class MainWindow(QWidget):
 #Creating the first page for login information
         self.user_line_edit = QLineEdit()
         self.password_line_edit = QLineEdit()
+        self.password_line_edit.setEchoMode(QLineEdit.Password)
 
         self.register_button = QPushButton("Register")
         self.register_button.setEnabled(True)
@@ -427,6 +428,8 @@ class MainWindow(QWidget):
         self.wpswd  =QLineEdit()
         self.confirmpswd = QLabel('Confirm Password:')
         self.wconfirmpswd  = QLineEdit()
+        self.wpswd.setEchoMode(QLineEdit.Password)
+        self.wconfirmpswd.setEchoMode(QLineEdit.Password)
 
 #Creating the buttons for registering staff or visitors
         self.RegVisitor = QPushButton('Register Visitor')
