@@ -93,7 +93,7 @@ class MainWindow(QWidget):
         self.vbox.addWidget(self.register_button)
         self.setLayout(self.vbox)
 
-    def visitor_functionality(self, my_user):
+    def visitor_functionality(self):
     #buttons that appear on main page
         self.SearchExhibits = QPushButton("Search Exhibits")
         self.SearchShows = QPushButton("Search Shows")
@@ -131,7 +131,7 @@ class MainWindow(QWidget):
         layout.addWidget(self.LogOut)
 
 
-    def admin_functionality(self, my_user):
+    def admin_functionality(self):
     #buttons that appear on main page
         self.ViewVisitors = QPushButton("View Visitors")
         self.ViewShows = QPushButton("View Shows")
@@ -376,7 +376,7 @@ class MainWindow(QWidget):
 
 
 
-    def staff_functionality(self, my_user):
+    def staff_functionality(self):
 
     #buttons that appear on main page
         self.SearchAnimals = QPushButton("Search for Animals")
@@ -1302,13 +1302,13 @@ class MainWindow(QWidget):
 
         elif (self.my_user[3] == 'visitor'):
             self.login_button.clicked.connect(self.close)
-            self.visitor_functionality(self.my_user)
+            self.visitor_functionality()
         elif (self.my_user[3] == 'admin'):
             self.login_button.clicked.connect(self.close)
-            self.admin_functionality(self.my_user)
+            self.admin_functionality()
         elif (self.my_user[3] == 'staff'):
             self.login_button.clicked.connect(self.close)
-            self.staff_functionality(self.my_user)
+            self.staff_functionality()
 
         else:
             messagebox.showwarning("Error", "Unrecognized account type.\nCheck database.")
