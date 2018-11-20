@@ -303,7 +303,8 @@ class MainWindow(QWidget):
         print("Removed",name,email)
 #deletes item selected
         for index in sorted(staff):
-            self.model.removeRow(index.row()) 
+            self.model.removeRow(index.row())
+            break 
         self.table.setModel(self.model)
         print("Updated table")
 
@@ -433,6 +434,7 @@ class MainWindow(QWidget):
 #deletes item selected
         for index in sorted(visitor):
             self.model.removeRow(index.row()) 
+            break
         self.table.setModel(self.model)
         print("Updated table")
 
@@ -1008,6 +1010,8 @@ class MainWindow(QWidget):
         self.exhibitDrop = QComboBox()
         self.RemoveShow = QPushButton("Remove Show")
         self.table = QTableView()
+        self.table.setSelectionBehavior(QTableView.SelectRows)
+        self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
         headerNames = ["Name", "Exhibit", "Date"]
@@ -1053,9 +1057,33 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.table,4,0,4,4)
         SSlayout.addWidget(self.RemoveShow,8,3)
 
+        self.RemoveShow.clicked.connect(self.remove_show)
+
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SSlayout)
         self.search_exhibits.show()
+
+    def remove_show(self):
+
+        show = self.table.selectionModel().selectedIndexes()
+        name = str(show[0].data())
+        exhibit = str(show[1].data())
+        time = str(show[2].data())
+        print(name,time,exhibit)
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("DELETE FROM SHOWS WHERE show_name = (%s) and datetime = (%s) and exhibit_name = (%s)", (name,time,exhibit))
+        print("Removed",name,time,exhibit)
+#deletes item selected
+        #############################
+        #  does not work correctly  # 
+        #############################
+        for index in sorted(show):
+            #print(index)
+            self.model.removeRow(index.row())
+            break
+        self.table.setModel(self.model)
+        print("Updated table")
 
     def admin_view_animals(self):
         self.setWindowTitle('Shows')
@@ -1075,7 +1103,11 @@ class MainWindow(QWidget):
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
         self.RemoveAnimal = QPushButton("Remove Animal")
+
         self.table = QTableView()
+
+        self.table.setSelectionBehavior(QTableView.SelectRows)
+        self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
         headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
@@ -1126,9 +1158,26 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.table,6,0,4,4)
         SAlayout.addWidget(self.RemoveAnimal,10,4)
 
+        self.RemoveAnimal.clicked.connect(self.remove_animals)
+
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SAlayout)
         self.search_exhibits.show()
+
+    def remove_animals(self):
+        animal = self.table.selectionModel().selectedIndexes()
+        name = str(animal[0].data())
+        species = str(animal[1].data())
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+
+        self.c.execute("DELETE FROM ANIMALS WHERE name = (%s) and species = (%s)", (name,species))
+#deletes item selected
+        for index in sorted(animal):
+            self.model.removeRow(index.row())
+            break 
+        self.table.setModel(self.model)
+        print("Updated table")
 
     def staff_view_shows(self):
         self.setWindowTitle('Shows')
