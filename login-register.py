@@ -1378,7 +1378,6 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         printstr = ""
         count = 0
-        count2 = 0
 
 #conducting checks for registration information for visitors
         if len(self.pswd) < 8:
@@ -1400,14 +1399,26 @@ class MainWindow(QWidget):
             printstr += "Username input needed \n"
             count+=1
 
+        self.c.execute("SELECT email FROM USERS WHERE email = (%s)",self.email)
+        emailFound = self.c.fetchall()
+        if len(emailFound) != 0:
+            printstr += "Email belongs to another a user\n"
+            count += 1
+
+        self.c.execute("SELECT email FROM USERS WHERE username = (%s)",self.user)
+        username_found = self.c.fetchall()
+        if len(username_found) != 0:
+            printstr += "Username belongs to another a user\n"
+            count += 1
+
         if count > 0:
             messagebox.showwarning("Error", printstr)
+
 
 #adding the visitor to the database
         else:
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"visitor"))
-
-        self.go_to_register.close()
+            self.go_to_register.close()
 
 
 
@@ -1417,18 +1428,17 @@ class MainWindow(QWidget):
         self.user = str(self.wuser.text())
         self.pswd = str(self.wpswd.text())
         self.confirmpswd = str(self.wconfirmpswd.text())
-        #check for confirm
 
         self.db = self.Connect()
         self.c = self.db.cursor()
         printstr = ""
         count = 0
 
-#conducting checks for registration information for staff
+#conducting checks for registration information for visitors
         if len(self.pswd) < 8:
             #print("Password needs to be more than 8 characters")
             printstr += "Password needs to be more than 8 characters\n"
-            count+=1
+            count += 1
 
         if self.confirmpswd != self.pswd:
             #print("Password must match Confirm Password")
@@ -1440,14 +1450,31 @@ class MainWindow(QWidget):
             printstr += "Email must meet email format with @ and . symbols\n"
             count+=1
 
+        if len(self.user) == 0:
+            printstr += "Username input needed \n"
+            count+=1
+
+        self.c.execute("SELECT email FROM USERS WHERE email = (%s)",self.email)
+        emailFound = self.c.fetchall()
+        if len(emailFound) != 0:
+            printstr += "Email belongs to another a user\n"
+            count += 1
+
+        self.c.execute("SELECT email FROM USERS WHERE username = (%s)",self.user)
+        username_found = self.c.fetchall()
+        if len(username_found) != 0:
+            printstr += "Username belongs to another a user\n"
+            count += 1
+
         if count > 0:
             messagebox.showwarning("Error", printstr)
 
-#adding the staff to the database
+
+#adding the visitor to the database
         else:
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"staff"))
+            self.go_to_register.close()
 
-        self.go_to_register.close()
 
 
     def Connect(self):
