@@ -343,6 +343,12 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(2)
+
+        atlantaZoo = QLabel()
+        atlantaZoo.setText("Atlanta Zoo")
+        showHistory = QLabel()
+        showHistory.setText("Staff - Show History")
+
         headerNames = ["Username", "Email"]
         self.model.setHorizontalHeaderLabels(headerNames)
 
@@ -367,6 +373,8 @@ class MainWindow(QWidget):
         SAlayout = QGridLayout()
         SAlayout.setColumnStretch(1,8)
         SAlayout.setRowStretch(1,4)
+        SAlayout.addWidget(atlantaZoo,0,0)
+        SAlayout.addWidget(showHistory,0,1)
         SAlayout.addWidget(self.table,6,0,4,4)
         SAlayout.addWidget(self.RemoveVisitor,10,4)
 
