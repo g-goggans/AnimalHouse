@@ -391,17 +391,17 @@ class MainWindow(QWidget):
         name = str(visitor[0].data())
         email = str(visitor[1].data())
         print(name,email)
-        # self.db = self.Connect()
-        # self.c = self.db.cursor()
+        self.db = self.Connect()
+        self.c = self.db.cursor()
 
 
         ####### This execute statement does not work ########
-        # self.c.execute("DELETE FROM USERS WHERE USERS.username = name AND USERS.email = email")
+        self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
         #####################################################
 
-
         print("Removed",name,email)
-        # self.table.connect(self.view.refresh())
+        #THIS WILL NOT WORK BECUASE TABLE IS NOT DEFINED
+        self.table.update()
         print("Updated table")
 
     def staff_functionality(self):
