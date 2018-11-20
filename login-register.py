@@ -295,18 +295,18 @@ class MainWindow(QWidget):
         staff = self.table.selectionModel().selectedIndexes()
         name = str(staff[0].data())
         email = str(staff[1].data())
-        print(name,email)
+        #print(name,email)
         self.db = self.Connect()
         self.c = self.db.cursor()
 
         self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
-        print("Removed",name,email)
+        #print("Removed",name,email)
 #deletes item selected
         for index in sorted(staff):
             self.model.removeRow(index.row())
             break 
         self.table.setModel(self.model)
-        print("Updated table")
+        #print("Updated table")
 
     def admin_add_animals(self):
         self.setWindowTitle('Add Animal')
@@ -322,31 +322,28 @@ class MainWindow(QWidget):
         self.wSpecies = QLineEdit()
         self.Age = QLabel("Age: ")
         self.wAge = QLineEdit()
-
         self.AddAnimal = QPushButton("Add Animal")
 
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
 
-        #exhibit drop down menu contents
+#exhibit drop down menu contents
         result = self.c.fetchall()
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-        print(exDrop)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("SELECT type FROM ANIMALS")
 
-        #type drop down menu contents
+#type drop down menu contents
         result2 = self.c.fetchall()
-        typDrop = [""]
-        for i in result:
-            typDrop.append(i[0])
-        print(typDrop)
-
+        typDrop = ["","Bird","Fish","Mammal","Amphibian"]
+        # for i in result2:
+        #     typDrop.append(i[0])
+        
         self.exhibitDrop.addItems(exDrop)
         self.typeDrop.addItems(typDrop)
 
@@ -368,6 +365,62 @@ class MainWindow(QWidget):
         self.add_animals = QDialog()
         self.add_animals.setLayout(SAlayout)
         self.add_animals.show()
+
+        self.AddAnimal.clicked.connect(self.admin_add_animal_button)
+        self.AddAnimal.clicked.connect(self.close)
+
+    def admin_add_animal_button(self):
+        self.name = str(self.wname.text())
+        self.exhibit = str(self.exhibitDrop.currentText())
+        self.type = str(self.typeDrop.currentText())
+        self.species = str(self.wSpecies.text())
+        self.age = str(self.wAge.text())
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        printstr = ""
+        count = 0
+
+#conducting checks for registration information for visitors
+        if len(self.name) < 1:
+            printstr += "- Name of animal not entered\n"
+            count += 1
+        if len(self.species) < 1:
+            printstr += "- Species of animal not entered\n"
+            count+=1
+        if len(self.age) < 1:
+            printstr += "- Age of animal is not entered\n"
+        else:
+            try:
+                self.age = int(self.age)
+            except:
+                printstr += "- Age of animals must be an integer\n"
+                count += 1
+        if len(self.exhibit) < 1:
+            printstr += "- Select a valid exhibit\n"
+            count += 1
+        if len(self.type) < 1:
+            printstr += "- Select a valid type\n"
+            count += 1
+
+        self.c.execute("SELECT name, species FROM ANIMALS WHERE name = (%s) and species = (%s) and age = (%s)", (self.name,self.species,self.age))
+        animalMatch = self.c.fetchall()
+        if len(animalMatch) != 0:
+            printstr += "This name already exists in the Zoo's database"
+            count += 1
+
+        if count > 0:
+            messagebox.showwarning("Error", printstr)
+
+#adding the visitor to the database
+        else:
+            #self.c.execute("INSERT INTO ANIMALS VALUES (%s,%s,%s,%s,%s)",(self.name,self.species,self.type,self.age,self.exhibit))
+            messagebox.showwarning("Congrats", "Animals has been successfully added")
+            ########################################
+            # I don't know how to close this
+            ######################################### 
+            self.close()
+            
 
     def admin_view_visitor(self):
         self.setWindowTitle('View Visitors')
@@ -424,19 +477,19 @@ class MainWindow(QWidget):
         visitor = self.table.selectionModel().selectedIndexes()
         name = str(visitor[0].data())
         email = str(visitor[1].data())
-        print(name,email)
+        #print(name,email)
         self.db = self.Connect()
         self.c = self.db.cursor()
 
         self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
 
-        print("Removed",name,email)
+        #print("Removed",name,email)
 #deletes item selected
         for index in sorted(visitor):
             self.model.removeRow(index.row()) 
             break
         self.table.setModel(self.model)
-        print("Updated table")
+        #print("Updated table")
 
 
     def staff_functionality(self):
@@ -797,7 +850,7 @@ class MainWindow(QWidget):
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-        print(exDrop)
+        #print(exDrop)
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -877,7 +930,7 @@ class MainWindow(QWidget):
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-        print(exDrop)
+        #print(exDrop)
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -963,7 +1016,7 @@ class MainWindow(QWidget):
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-        print(exDrop)
+        #print(exDrop)
 
 #fill dedfault table
         self.c = self.db.cursor()
