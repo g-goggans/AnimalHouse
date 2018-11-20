@@ -183,7 +183,9 @@ class MainWindow(QWidget):
         self.staff = QLabel("Staff: ")
         self.staffDrop = QComboBox()
         self.date = QLabel("Date: ")
-        self.wdate = QLineEdit()
+        self.monthDrop = QComboBox()
+        self.dayDrop = QComboBox()
+        self.yearDrop = QComboBox()
         self.time = QLabel("Time: ")
         self.wtime = QLineEdit()
 
@@ -192,13 +194,12 @@ class MainWindow(QWidget):
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
 #exhibit drop down menu contents
         result = self.c.fetchall()
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-        print(exDrop)
+        #print(exDrop)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -213,6 +214,15 @@ class MainWindow(QWidget):
 
         self.exhibitDrop.addItems(exDrop)
         self.staffDrop.addItems(stDrop)
+        self.monthDrop.addItems(["Select Month","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"]) 
+        self.monthDrop.model().item(0).setEnabled(False)        
+        self.dayDrop.addItems(["Select Day","1","2","3","4","5"])
+        self.dayDrop.model().item(0).setEnabled(False)  
+        print(self.monthDrop.currentText())
+        if self.monthDrop.currentText() == "Feb":
+            print("true")
+            self.dayDrop.model().item(4).setEnabled(False)
+        self.yearDrop.addItems(["Select Year","2013","2014","2015","2016","2017","2018","2019","2020"])
 
         SAlayout = QGridLayout()
         SAlayout.setColumnStretch(1,6)
@@ -224,7 +234,9 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.staff,5,0)
         SAlayout.addWidget(self.staffDrop,6,0)
         SAlayout.addWidget(self.date,7,0)
-        SAlayout.addWidget(self.wdate, 8,0)
+        SAlayout.addWidget(self.monthDrop, 8,0)
+        SAlayout.addWidget(self.dayDrop, 8,1)
+        SAlayout.addWidget(self.yearDrop, 8,2)
         SAlayout.addWidget(self.time, 9,0)
         SAlayout.addWidget(self.wtime,10,0)
         SAlayout.addWidget(self.AddShow,5,1)
@@ -242,6 +254,9 @@ class MainWindow(QWidget):
 
         self.RemoveStaff = QPushButton("Remove Staff Member")
         self.table = QTableView()
+        self.table.setSelectionBehavior(QTableView.SelectRows)
+        self.table.setSelectionMode(QTableView.SingleSelection)
+
         self.model = QStandardItemModel()
         self.model.setColumnCount(2)
         headerNames = ["Username", "Email"]
@@ -270,9 +285,27 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.table,6,0,4,4)
         SAlayout.addWidget(self.RemoveStaff,10,4)
 
+        self.RemoveStaff.clicked.connect(self.remove_staff)
+
         self.view_staff = QDialog()
         self.view_staff.setLayout(SAlayout)
         self.view_staff.show()
+
+    def remove_staff(self):
+        staff = self.table.selectionModel().selectedIndexes()
+        name = str(staff[0].data())
+        email = str(staff[1].data())
+        print(name,email)
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+
+        self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
+        print("Removed",name,email)
+#deletes item selected
+        for index in sorted(staff):
+            self.model.removeRow(index.row()) 
+        self.table.setModel(self.model)
+        print("Updated table")
 
     def admin_add_animals(self):
         self.setWindowTitle('Add Animal')
@@ -394,15 +427,15 @@ class MainWindow(QWidget):
         self.db = self.Connect()
         self.c = self.db.cursor()
 
-
-        ####### This execute statement does not work ########
         self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
-        #####################################################
 
         print("Removed",name,email)
-        #THIS WILL NOT WORK BECUASE TABLE IS NOT DEFINED
-        self.table.update()
+#deletes item selected
+        for index in sorted(visitor):
+            self.model.removeRow(index.row()) 
+        self.table.setModel(self.model)
         print("Updated table")
+
 
     def staff_functionality(self):
 
