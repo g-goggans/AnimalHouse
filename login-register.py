@@ -476,7 +476,7 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.visitor_exhibit_search_button)
 
-    def visitor_exhibit_search_button(self):
+       def visitor_exhibit_search_button(self):
         self.animalMin = str(self.wanimalMin.text())
         self.animalMax = str(self.wanimalMax.text())
         self.sizeMin = str(self.wsizeMin.text())
@@ -484,37 +484,47 @@ class MainWindow(QWidget):
         printstr = ""
         count = 0
         count2 = 0
+        count3 = 0
+        count4 = 0
 
-        try:
-            self.animalMin = int(str(self.wanimalMin.text()))
-        except:
-            printstr += "- input for min animal number must be integer\n"
-            count += 1
-        try:
-            self.animalMax = int(str(self.wanimalMax.text()))
-        except:
-            printstr += "- input for max animal number must be integer\n"
-            count += 1
-        if count == 0:
+        if len(self.animalMin) > 0:
+            try:
+                self.animalMin = int(str(self.wanimalMin.text()))
+                count2 += 1
+            except:
+                printstr += "- input for min animal number must be integer\n"
+                count += 1
+        if len(self.animalMax) > 0:
+            try:
+                self.animalMax = int(str(self.wanimalMax.text()))
+                count2 += 1
+            except:
+                printstr += "- input for max animal number must be integer\n"
+                count += 1
+        if count2 == 2: 
             if (self.animalMin > self.animalMax):
                 printstr += "- min animals must be less than max animals\n"
                 count += 1
-        try:
-            self.sizeMin = int(str(self.wsizeMin.text()))
-        except:
-            printstr += "- input for min size must be integer\n"
-            count2 += 1
-        try:
-            self.sizeMax = int(str(self.wsizeMax.text()))
-        except:
-            printstr += "- input for max size must be integer\n"
-            count2 += 1
-        if count2 == 0:
+        if len(self.sizeMin) > 0:
+            try:
+                self.sizeMin = int(str(self.wsizeMin.text()))
+                count4 += 1
+            except:
+                printstr += "- input for min size must be integer\n"
+                count3 += 1
+        if len(self.sizeMax) > 0:
+            try:
+                self.sizeMax = int(str(self.wsizeMax.text()))
+                count4 += 1
+            except:
+                printstr += "- input for max size must be integer\n"
+                count3 += 1
+        if count4 == 2:
             if (self.sizeMin > self.sizeMax):
                 printstr += "- min size must be less than max size\n"
-                count2 += 1
-        if ((count == 0) and (count2 == 0)):
-            print("here")
+                count3 += 1
+        if ((count == 0) and (count3 == 0)):
+            print("execute query")
         else:
             messagebox.showwarning("Error", printstr)
             #print(printstr)
