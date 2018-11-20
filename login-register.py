@@ -342,6 +342,7 @@ class MainWindow(QWidget):
         self.RemoveVisitor = QPushButton("Remove Visitor")
         self.table = QTableView()
         self.table.setSelectionBehavior(QTableView.SelectRows)
+        self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(2)
 
@@ -386,9 +387,22 @@ class MainWindow(QWidget):
         self.view_visitors.show()
 
     def remove_visitor(self):
-        visitor = self.table.selectionModel().selectedRows()
+        visitor = self.table.selectionModel().selectedIndexes()
+        name = str(visitor[0].data())
+        email = str(visitor[1].data())
+
         self.db = self.Connect()
         self.c = self.db.cursor()
+
+
+        ####### This execute statement does not work ########
+        self.c.execute("DELETE FROM USERS WHERE USERS.username = name AND USERS.email = email")
+        #####################################################
+
+
+        print("Removed",name,email)
+        self.table.connect(self.view.refresh())
+        print("Updated table")
 
     def staff_functionality(self):
 
