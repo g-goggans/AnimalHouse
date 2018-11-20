@@ -341,13 +341,14 @@ class MainWindow(QWidget):
 
         self.RemoveVisitor = QPushButton("Remove Visitor")
         self.table = QTableView()
+        self.table.setSelectionBehavior(QTableView.SelectRows)
         self.model = QStandardItemModel()
         self.model.setColumnCount(2)
 
         atlantaZoo = QLabel()
         atlantaZoo.setText("Atlanta Zoo")
-        showHistory = QLabel()
-        showHistory.setText("Staff - Show History")
+        viewVisitors = QLabel()
+        viewVisitors.setText("Staff - View Visitors")
 
         headerNames = ["Username", "Email"]
         self.model.setHorizontalHeaderLabels(headerNames)
@@ -374,15 +375,20 @@ class MainWindow(QWidget):
         SAlayout.setColumnStretch(1,8)
         SAlayout.setRowStretch(1,4)
         SAlayout.addWidget(atlantaZoo,0,0)
-        SAlayout.addWidget(showHistory,0,1)
+        SAlayout.addWidget(viewVisitors,0,1)
         SAlayout.addWidget(self.table,6,0,4,4)
         SAlayout.addWidget(self.RemoveVisitor,10,4)
+
+        self.RemoveVisitor.clicked.connect(self.remove_visitor)
 
         self.view_visitors = QDialog()
         self.view_visitors.setLayout(SAlayout)
         self.view_visitors.show()
 
-
+    def remove_visitor(self):
+        visitor = self.table.selectionModel().selectedRows()
+        self.db = self.Connect()
+        self.c = self.db.cursor()
 
     def staff_functionality(self):
 
@@ -484,7 +490,7 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.visitor_exhibit_search_button)
 
-       def visitor_exhibit_search_button(self):
+    def visitor_exhibit_search_button(self):
         self.animalMin = str(self.wanimalMin.text())
         self.animalMax = str(self.wanimalMax.text())
         self.sizeMin = str(self.wsizeMin.text())
@@ -509,7 +515,7 @@ class MainWindow(QWidget):
             except:
                 printstr += "- input for max animal number must be integer\n"
                 count += 1
-        if count2 == 2: 
+        if count2 == 2:
             if (self.animalMin > self.animalMax):
                 printstr += "- min animals must be less than max animals\n"
                 count += 1
