@@ -484,7 +484,7 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.visitor_exhibit_search_button)
 
-    def visitor_exhibit_search_button(self):
+       def visitor_exhibit_search_button(self):
         self.animalMin = str(self.wanimalMin.text())
         self.animalMax = str(self.wanimalMax.text())
         self.sizeMin = str(self.wsizeMin.text())
@@ -492,37 +492,47 @@ class MainWindow(QWidget):
         printstr = ""
         count = 0
         count2 = 0
+        count3 = 0
+        count4 = 0
 
-        try:
-            self.animalMin = int(str(self.wanimalMin.text()))
-        except:
-            printstr += "- input for min animal number must be integer\n"
-            count += 1
-        try:
-            self.animalMax = int(str(self.wanimalMax.text()))
-        except:
-            printstr += "- input for max animal number must be integer\n"
-            count += 1
-        if count == 0:
+        if len(self.animalMin) > 0:
+            try:
+                self.animalMin = int(str(self.wanimalMin.text()))
+                count2 += 1
+            except:
+                printstr += "- input for min animal number must be integer\n"
+                count += 1
+        if len(self.animalMax) > 0:
+            try:
+                self.animalMax = int(str(self.wanimalMax.text()))
+                count2 += 1
+            except:
+                printstr += "- input for max animal number must be integer\n"
+                count += 1
+        if count2 == 2: 
             if (self.animalMin > self.animalMax):
                 printstr += "- min animals must be less than max animals\n"
                 count += 1
-        try:
-            self.sizeMin = int(str(self.wsizeMin.text()))
-        except:
-            printstr += "- input for min size must be integer\n"
-            count2 += 1
-        try:
-            self.sizeMax = int(str(self.wsizeMax.text()))
-        except:
-            printstr += "- input for max size must be integer\n"
-            count2 += 1
-        if count2 == 0:
+        if len(self.sizeMin) > 0:
+            try:
+                self.sizeMin = int(str(self.wsizeMin.text()))
+                count4 += 1
+            except:
+                printstr += "- input for min size must be integer\n"
+                count3 += 1
+        if len(self.sizeMax) > 0:
+            try:
+                self.sizeMax = int(str(self.wsizeMax.text()))
+                count4 += 1
+            except:
+                printstr += "- input for max size must be integer\n"
+                count3 += 1
+        if count4 == 2:
             if (self.sizeMin > self.sizeMax):
                 printstr += "- min size must be less than max size\n"
-                count2 += 1
-        if ((count == 0) and (count2 == 0)):
-            print("here")
+                count3 += 1
+        if ((count == 0) and (count3 == 0)):
+            print("execute query")
         else:
             messagebox.showwarning("Error", printstr)
             #print(printstr)
@@ -1386,7 +1396,6 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         printstr = ""
         count = 0
-        count2 = 0
 
 #conducting checks for registration information for visitors
         if len(self.pswd) < 8:
@@ -1408,14 +1417,26 @@ class MainWindow(QWidget):
             printstr += "Username input needed \n"
             count+=1
 
+        self.c.execute("SELECT email FROM USERS WHERE email = (%s)",self.email)
+        emailFound = self.c.fetchall()
+        if len(emailFound) != 0:
+            printstr += "Email belongs to another a user\n"
+            count += 1
+
+        self.c.execute("SELECT email FROM USERS WHERE username = (%s)",self.user)
+        username_found = self.c.fetchall()
+        if len(username_found) != 0:
+            printstr += "Username belongs to another a user\n"
+            count += 1
+
         if count > 0:
             messagebox.showwarning("Error", printstr)
+
 
 #adding the visitor to the database
         else:
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"visitor"))
-
-        self.go_to_register.close()
+            self.go_to_register.close()
 
 
 
@@ -1425,18 +1446,17 @@ class MainWindow(QWidget):
         self.user = str(self.wuser.text())
         self.pswd = str(self.wpswd.text())
         self.confirmpswd = str(self.wconfirmpswd.text())
-        #check for confirm
 
         self.db = self.Connect()
         self.c = self.db.cursor()
         printstr = ""
         count = 0
 
-#conducting checks for registration information for staff
+#conducting checks for registration information for visitors
         if len(self.pswd) < 8:
             #print("Password needs to be more than 8 characters")
             printstr += "Password needs to be more than 8 characters\n"
-            count+=1
+            count += 1
 
         if self.confirmpswd != self.pswd:
             #print("Password must match Confirm Password")
@@ -1448,14 +1468,31 @@ class MainWindow(QWidget):
             printstr += "Email must meet email format with @ and . symbols\n"
             count+=1
 
+        if len(self.user) == 0:
+            printstr += "Username input needed \n"
+            count+=1
+
+        self.c.execute("SELECT email FROM USERS WHERE email = (%s)",self.email)
+        emailFound = self.c.fetchall()
+        if len(emailFound) != 0:
+            printstr += "Email belongs to another a user\n"
+            count += 1
+
+        self.c.execute("SELECT email FROM USERS WHERE username = (%s)",self.user)
+        username_found = self.c.fetchall()
+        if len(username_found) != 0:
+            printstr += "Username belongs to another a user\n"
+            count += 1
+
         if count > 0:
             messagebox.showwarning("Error", printstr)
 
-#adding the staff to the database
+
+#adding the visitor to the database
         else:
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email,self.user,self.pswd,"staff"))
+            self.go_to_register.close()
 
-        self.go_to_register.close()
 
 
     def Connect(self):
