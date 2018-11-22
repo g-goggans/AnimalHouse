@@ -799,12 +799,10 @@ class MainWindow(QWidget):
         SSlayout = QGridLayout()
 
         self.search = QPushButton("search")
-
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
-
         self.date = QLabel("Date: ")
-        self.dateDrop = QComboBox() #this is wrong implementation
+        self.calendar = QCalendarWidget()
 
         self.exhibit_name = QLabel("Exhibit")
         self.exhibitDrop = QComboBox()
@@ -812,13 +810,19 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
+        headerNames = ["Name", "Date", "Exhibit"]
         self.model.setHorizontalHeaderLabels(headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
 
+#exhibit drop down menu contents
+        result = self.c.fetchall()
+        exDrop = [""]
+        for i in result:
+            exDrop.append(i[0])
+        self.exhibitDrop.addItems(exDrop)
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -835,22 +839,89 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
+        self.table.resizeColumnsToContents()
 
         SSlayout = QGridLayout()
-        SSlayout.setColumnStretch(1,3)
-        SSlayout.setRowStretch(1,3)
-        SSlayout.addWidget(self.search,3,3)
-        SSlayout.addWidget(self.name, 1,0)
+        SSlayout.setColumnStretch(1,5)
+        SSlayout.setRowStretch(1,5)
+        SSlayout.addWidget(self.search,3,7)
+        SSlayout.addWidget(self.name, 1,0,1,1)
         SSlayout.addWidget(self.wname,1,1)
         SSlayout.addWidget(self.date,2,0)
-        SSlayout.addWidget(self.dateDrop,2,1)
-        SSlayout.addWidget(self.exhibit_name,1,2)
-        SSlayout.addWidget(self.exhibitDrop,1,3)
-        SSlayout.addWidget(self.table,4,0,4,4)
+        SSlayout.addWidget(self.calendar,2,1,1,5)
+        SSlayout.addWidget(self.exhibit_name,3,0)
+        SSlayout.addWidget(self.exhibitDrop,3 ,1)
+        SSlayout.addWidget(self.table,4,0,6,6)
+
+        self.search.clicked.connect(self.view_show_history_search)
 
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SSlayout)
         self.search_exhibits.show()
+
+    def view_show_history_search(self):
+        self.name = str(self.wname.text())
+        self.exhibit = str(self.exhibitDrop.currentText())
+        self.date = str(self.calendar.selectedDate())
+        self.nextDay = ""
+
+        addQuery = []
+        if len(self.exhibit) != 0:
+            addQuery.append("exhibit_name = '{}'".format(self.exhibit))
+        if len(self.name) != 0:
+            addQuery.append("lower(show_name) LIKE '%{}%'".format(self.name.lower()))
+        #######################################################
+        # need to figure out how to set up no default date
+        #######################################################
+        if len(self.date) != 0:
+            self.year = ""
+            for i in range(19,23):
+                self.year += self.date[i]
+            print(self.year)
+            self.month = ""
+            for i in range(25,27):
+                self.month += self.date[i]
+            if "," in self.month:
+                self.month += "0"
+                self.month += self.month[0]
+                self.month = self.month[2:]
+            self.day = ""
+            for i in range(28,len(self.date)-1):
+                self.day += self.date[i]
+            if " " in self.day:
+                self.day = self.day.replace(" ","")
+            if len(self.day) == 1:
+                self.day += "0"
+                self.day += self.day[0]
+                self.day = self.day[1:]
+
+            self.date = ""
+            self.date = self.year + "-" + self.month + "-" + self.day 
+            print(self.date)
+            addQuery.append("DATE(datetime) = '{}'".format(self.date))
+        print(addQuery)
+
+
+        fullQuery = "SELECT * FROM SHOWS"
+        if len(addQuery) > 0:
+            fullQuery += " WHERE "
+            for i in range(0,len(addQuery)-1):
+                fullQuery = fullQuery + addQuery[i] + " and "
+            fullQuery += addQuery[len(addQuery)-1]
+        print(fullQuery)
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute(fullQuery)
+        result = self.c.fetchall()
+        print(result)
+
+        ################################################
+        # - creates appropriate query for  searching the shows
+        # - Does not update the table becuase idk how to do that
+        # - calendar has default date chosen... we need to get rid of this
+        #################################################
+
 
     def visitor_search_shows(self):
         self.setWindowTitle('Shows')
