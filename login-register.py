@@ -9,31 +9,7 @@ import tkinter.messagebox as messagebox
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QLabel,
-    qApp,
-    QAction,
-    QTabWidget,
-    QFileDialog,
-    QTableView,
-    QPushButton,
-    QVBoxLayout,
-    QListView,
-    QLineEdit,
-    QGridLayout,
-    QComboBox,
-    QGroupBox,
-    QListWidget,
-    QMessageBox,
-    QFormLayout,
-    QDialog,
-    QHBoxLayout,
-    QGridLayout,
-    QCalendarWidget
-)
+from PyQt5.QtWidgets import *
 
 from PyQt5.QtGui import (
     QStandardItemModel,
@@ -43,7 +19,8 @@ from PyQt5.QtGui import (
 from PyQt5.QtCore import (
     Qt,
     QAbstractTableModel,
-    QVariant
+    QVariant,
+    QDate
 )
 
 from PyQt5.QtSql import (
@@ -802,7 +779,12 @@ class MainWindow(QWidget):
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.date = QLabel("Date: ")
-        self.calendar = QCalendarWidget()
+        self.calendar = QDateEdit() #this is wrong implementation
+        self.calendar.setCalendarPopup(True)
+        self.calendar.calendarWidget().installEventFilter(self)
+        self.calendar.setSpecialValueText(" ")
+        self.calendar.setDate(QDate.fromString( "01/01/0001", "dd/MM/yyyy" ))
+        self.calendar.setMinimumDate(QDate.fromString( "01/01/2010", "dd/MM/yyyy" ))
 
         self.exhibit_name = QLabel("Exhibit")
         self.exhibitDrop = QComboBox()
@@ -862,8 +844,6 @@ class MainWindow(QWidget):
     def view_show_history_search(self):
         self.name = str(self.wname.text())
         self.exhibit = str(self.exhibitDrop.currentText())
-        self.date = str(self.calendar.selectedDate())
-        self.nextDay = ""
 
         addQuery = []
         if len(self.exhibit) != 0:
@@ -873,7 +853,10 @@ class MainWindow(QWidget):
         #######################################################
         # need to figure out how to set up no default date
         #######################################################
-        if len(self.date) != 0:
+        self.date = str(self.calendar.date())
+        if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
+            self.date = ""
+        else:
             self.year = ""
             for i in range(19,23):
                 self.year += self.date[i]
@@ -899,29 +882,37 @@ class MainWindow(QWidget):
             self.date = self.year + "-" + self.month + "-" + self.day 
             print(self.date)
             addQuery.append("DATE(datetime) = '{}'".format(self.date))
-        print(addQuery)
 
-
-        fullQuery = "SELECT * FROM SHOWS"
+        fullQuery = "SELECT show_name, datetime, exhibit_name FROM SHOWS"
         if len(addQuery) > 0:
             fullQuery += " WHERE "
             for i in range(0,len(addQuery)-1):
                 fullQuery = fullQuery + addQuery[i] + " and "
             fullQuery += addQuery[len(addQuery)-1]
-        print(fullQuery)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute(fullQuery)
         result = self.c.fetchall()
-        print(result)
 
-        ################################################
-        # - creates appropriate query for  searching the shows
-        # - Does not update the table becuase idk how to do that
-        # - calendar has default date chosen... we need to get rid of this
-        #################################################
+        self.model.clear()
+        self.table.setModel(self.model)
 
+        self.c = self.db.cursor()
+        self.c.execute(fullQuery)
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+#converts item to list from tuple
+            for j in i:
+                item = QStandardItem(str(j))
+#has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+
+        self.table.setModel(self.model)
+        self.table.resizeColumnsToContents()
 
     def visitor_search_shows(self):
         self.setWindowTitle('Shows')
@@ -933,7 +924,12 @@ class MainWindow(QWidget):
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.date = QLabel("Date: ")
-        self.dateDrop = QComboBox() #this is wrong implementation
+        self.dateDrop = QDateEdit() #this is wrong implementation
+        self.dateDrop.setCalendarPopup(True)
+        self.dateDrop.calendarWidget().installEventFilter(self)
+        self.dateDrop.setSpecialValueText(" ")
+        self.dateDrop.setDate(QDate.fromString( "01/01/0001", "dd/MM/yyyy" ))
+        self.dateDrop.setMinimumDate(QDate.fromString( "01/01/2010", "dd/MM/yyyy" ))
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
         self.logVisit = QPushButton("Log Visit")
@@ -952,7 +948,6 @@ class MainWindow(QWidget):
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-        print(exDrop)
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -964,7 +959,6 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-                #print(row)
             self.model.appendRow(row)
 
         self.exhibitDrop.addItems(exDrop)
@@ -985,9 +979,75 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.table,4,0,4,4)
         SSlayout.addWidget(self.logVisit,8,3)
 
+        self.search.clicked.connect(self.visitor_search_shows_button)
+
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SSlayout)
         self.search_exhibits.show()
+
+    def visitor_search_shows_button(self):
+        fullQuery = "SELECT show_name, datetime, exhibit_name FROM SHOWS"
+        addQuery = []
+        count = 0
+        if len(str(self.wname.text())) > 0:
+            self.name = str(self.wname.text())
+            addQuery.append("lower(show_name) LIKE '%{}%'".format(self.name.lower()))
+            count += 1
+        if len(str(self.exhibitDrop.currentText())):
+            self.exhibit = str(self.exhibitDrop.currentText())
+            addQuery.append("exhibit_name = '{}'".format(self.exhibit.lower()))
+            count += 1
+        self.date = str(self.dateDrop.date())
+        if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
+            self.date = ""
+        else:
+            self.year = ""
+            for i in range(19,23):
+                self.year += self.date[i]
+            self.month = ""
+            for i in range(25,27):
+                self.month += self.date[i]
+            if "," in self.month:
+                self.month += "0"
+                self.month += self.month[0]
+                self.month = self.month[2:]
+            self.day = ""
+            for i in range(28,len(self.date)-1):
+                self.day += self.date[i]
+            if " " in self.day:
+                self.day = self.day.replace(" ","")
+            if len(self.day) == 1:
+                self.day += "0"
+                self.day += self.day[0]
+                self.day = self.day[1:]
+
+            self.date = ""
+            self.date = self.year + "-" + self.month + "-" + self.day 
+            addQuery.append("DATE(datetime) = '{}'".format(self.date))
+        if len(addQuery) > 0:
+            fullQuery += " WHERE "
+            for i in range(0,len(addQuery)-1):
+                fullQuery = fullQuery + addQuery[i] + " AND "
+            fullQuery += addQuery[len(addQuery)-1]
+
+        self.model.clear()
+        self.table.setModel(self.model)
+
+        self.c = self.db.cursor()
+        self.c.execute(fullQuery)
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+#converts item to list from tuple
+            for j in i:
+                item = QStandardItem(str(j))
+#has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+
+        self.table.setModel(self.model)
+        self.table.resizeColumnsToContents()
 
     def visitor_search_animals(self):
         self.setWindowTitle('Shows')
