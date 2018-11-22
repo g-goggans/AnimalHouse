@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+from datetime import datetime
 
 import tkinter as tk
 from tkinter import *
@@ -30,7 +31,8 @@ from PyQt5.QtWidgets import (
     QFormLayout,
     QDialog,
     QHBoxLayout,
-    QGridLayout
+    QGridLayout,
+    QCalendarWidget
 )
 
 from PyQt5.QtGui import (
@@ -144,8 +146,8 @@ class MainWindow(QWidget):
     #layout of page
         self.layout = QGridLayout()
         layout = self.layout
-        layout.setColumnStretch(1,3)
-        layout.setRowStretch(1,3)
+        layout.setColumnStretch(1,4)
+        layout.setRowStretch(1,4)
 
     #placement layout of page
         layout.addWidget(self.ViewVisitors,0,0)
@@ -153,7 +155,7 @@ class MainWindow(QWidget):
         layout.addWidget(self.ViewShows,1,0)
         layout.addWidget(self.ViewAnimals, 1,1)
         layout.addWidget(self.AddAnimals,2,0)
-        layout.addWidget(self.AddShow,3,0)
+        layout.addWidget(self.AddShow,2,1)
         layout.addWidget(self.LogOut, 3,1)
 
 
@@ -183,11 +185,11 @@ class MainWindow(QWidget):
         self.staff = QLabel("Staff: ")
         self.staffDrop = QComboBox()
         self.date = QLabel("Date: ")
-        self.monthDrop = QComboBox()
-        self.dayDrop = QComboBox()
-        self.yearDrop = QComboBox()
+        self.calendar = QCalendarWidget()
         self.time = QLabel("Time: ")
-        self.wtime = QLineEdit()
+        self.hourDrop = QComboBox()
+        self.minuteDrop = QComboBox()
+        self.AMPMDrop = QComboBox()
 
         self.AddShow = QPushButton("Add Show")
 
@@ -208,21 +210,19 @@ class MainWindow(QWidget):
 #type drop down menu contents
         result2 = self.c.fetchall()
         stDrop = [""]
-        for i in result:
+        for i in result2:
             stDrop.append(i[0])
         print(stDrop)
 
         self.exhibitDrop.addItems(exDrop)
         self.staffDrop.addItems(stDrop)
-        self.monthDrop.addItems(["Select Month","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"]) 
-        self.monthDrop.model().item(0).setEnabled(False)        
-        self.dayDrop.addItems(["Select Day","1","2","3","4","5"])
-        self.dayDrop.model().item(0).setEnabled(False)  
-        print(self.monthDrop.currentText())
-        if self.monthDrop.currentText() == "Feb":
-            print("true")
-            self.dayDrop.model().item(4).setEnabled(False)
-        self.yearDrop.addItems(["Select Year","2013","2014","2015","2016","2017","2018","2019","2020"])
+        self.hourDrop.addItems(["hour","1","2","3","4","5","6","7","8","9","10","11","12"])
+        self.AMPMDrop.addItems(["AM/PM","AM","PM"])
+
+        minutes = ["min","00","01","02","03","04","05","06","07","08","09"]
+        for i in range(10,61):
+            minutes.append(str(i))
+        self.minuteDrop.addItems(minutes)
 
         SAlayout = QGridLayout()
         SAlayout.setColumnStretch(1,6)
@@ -234,18 +234,118 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.staff,5,0)
         SAlayout.addWidget(self.staffDrop,6,0)
         SAlayout.addWidget(self.date,7,0)
-        SAlayout.addWidget(self.monthDrop, 8,0)
-        SAlayout.addWidget(self.dayDrop, 8,1)
-        SAlayout.addWidget(self.yearDrop, 8,2)
-        SAlayout.addWidget(self.time, 9,0)
-        SAlayout.addWidget(self.wtime,10,0)
-        SAlayout.addWidget(self.AddShow,5,1)
+        SAlayout.addWidget(self.calendar, 8,0,3,3)
+        SAlayout.addWidget(self.time, 11,0)
+        SAlayout.addWidget(self.hourDrop,12,0)
+        SAlayout.addWidget(self.minuteDrop,12,1)
+        SAlayout.addWidget(self.AMPMDrop,12,2)
+        SAlayout.addWidget(self.AddShow,5,4)
+
+        self.AddShow.clicked.connect(self.admin_add_show_button)
 
         self.add_shows = QDialog()
         self.add_shows.setLayout(SAlayout)
         self.add_shows.show()
 
+    def admin_add_show_button(self):
+        datestring = "Jun 1 2005  1:33PM"
+        datestring = datetime.strptime(datestring, '%b %d %Y %I:%M%p')
+        print(datestring)
+        #momthDict = 
+        errorStr = ""
+        count = 0
+#error handling for inputs
+        if (len(str(self.wname.text()))) == 0:
+            errorStr += "- Enter name of show\n"
+            count += 1
+        if (len(str(self.exhibitDrop.currentText()))) == 0:
+            errorStr += "- Select valid exhibit\n"
+            count += 1
+        if (len(str(self.staffDrop.currentText()))) == 0:
+            errorStr += "- Select valid staff to host the show\n"
+            count += 1
 
+        if (len(str(self.hourDrop.currentText()))) > 2:
+            errorStr += "- Select valid hour for show start time\n"
+            count += 1
+        if (len(str(self.minuteDrop.currentText()))) > 2:
+            errorStr += "- Select valid minute for show start time\n"
+            count += 1
+        if (len(str(self.AMPMDrop.currentText()))) == 5:
+            errorStr += "- Select valid AM/PM option for show start time\n"
+            count += 1
+
+        if count == 0:
+#defining gui inputs to variables
+            self.name = str(self.wname.text())
+            self.exhibit = str(self.exhibitDrop.currentText())
+            self.staff = str(self.staffDrop.currentText())
+            self.showDate = str(self.calendar.selectedDate())
+            self.minute = str(self.minuteDrop.currentText())
+            self.AMPM = str(self.AMPMDrop.currentText())
+            self.hour = str(self.hourDrop.currentText())
+#converting time to correct datetime format
+            if (self.AMPM == "PM") and (self.hour != "12"):
+                self.hour = int(self.hourDrop.currentText()) + 12 
+                self.hour = str(self.hour)
+            else: 
+                 self.hour = str(self.hourDrop.currentText())
+            if (self.hour == 12) and (self.AMPM == "AM"):
+                self.hour = "00"
+            if len(self.hour) == 1:
+                self.hour = "0" + self.hour
+                print(self.hour)
+            if len(self.minute) == 1:
+                self.minute = "0" + self.minute
+                print(self.minute)
+#converting date to correct datetime format
+            self.year = ""
+            for i in range(19,23):
+                self.year += self.showDate[i]
+            print(self.year)
+
+            self.month = ""
+            for i in range(25,27):
+                self.month += self.showDate[i]
+            if "," in self.month:
+                self.month += "0"
+                self.month += self.month[0]
+                self.month = self.month[2:]
+
+            self.day = ""
+            for i in range(28,len(self.showDate)-1):
+                self.day += self.showDate[i]
+            if " " in self.day:
+                self.day = self.day.replace(" ","")
+            if len(self.day) == 1:
+                self.day += "0"
+                self.day += self.day[0]
+                self.day = self.day[1:]
+#creating sting to represent datetime
+            self.showDate = ""
+            self.showDate = self.year + "-" + self.month + "-" + self.day + " " + self.hour + ":" + self.minute + ":00"
+            self.showDate = datetime.strptime(self.showDate, '%Y-%m-%d %H:%M:%S')
+            print(self.showDate)
+            print(type(self.showDate))
+            print(self.staff)
+#see if the staff is working at another show at that time
+            self.c.execute("SELECT username, datetime FROM SHOWS WHERE username = (%s) and datetime = (%s)", (self.staff,self.showDate))
+            staffMatch = self.c.fetchall()
+            if len(staffMatch) != 0:
+                errorStr += "This staff member is working another show at that time"
+                count += 1
+#execute insert SQL query
+            if count == 0:
+                self.c.execute("INSERT INTO SHOWS VALUES (%s,%s,%s,%s)",(self.name,self.showDate,self.exhibit,self.staff))
+                messagebox.showwarning("Congrats", "Show has been successfully added")
+
+        if count > 0:
+            messagebox.showwarning("Error", errorStr)
+
+        ############################################
+        # - have not closed window
+        # - hove not blocked shows from being added in the past present or future
+        ############################################
 
     def admin_view_staff(self):
         print("view_staff")
@@ -340,7 +440,7 @@ class MainWindow(QWidget):
 
 #type drop down menu contents
         result2 = self.c.fetchall()
-        typDrop = ["","Bird","Fish","Mammal","Amphibian"]
+        typDrop = ["","Bird","Fish","Mammal","Amphibian","Reptile","Invertebrate"]
         # for i in result2:
         #     typDrop.append(i[0])
         
@@ -414,7 +514,9 @@ class MainWindow(QWidget):
 
 #adding the visitor to the database
         else:
-            #self.c.execute("INSERT INTO ANIMALS VALUES (%s,%s,%s,%s,%s)",(self.name,self.species,self.type,self.age,self.exhibit))
+            self.name = self.name.capitalize()
+            self.species = self.species
+            self.c.execute("INSERT INTO ANIMALS VALUES (%s,%s,%s,%s,%s)",(self.name,self.species,self.type,self.age,self.exhibit))
             messagebox.showwarning("Congrats", "Animals has been successfully added")
             ########################################
             # I don't know how to close this
