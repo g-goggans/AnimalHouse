@@ -1112,22 +1112,92 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.Species,3,0)
         SAlayout.addWidget(self.wSpecies, 3,1)
         SAlayout.addWidget(self.age, 5,0)
-        SAlayout.addWidget(self.maxAge,4,1)
-        SAlayout.addWidget(self.minAge,4,2)
+        SAlayout.addWidget(self.maxAge,4,2)
+        SAlayout.addWidget(self.minAge,4,1)
         SAlayout.addWidget(self.wminAge,5,1)
         SAlayout.addWidget(self.wmaxAge,5,2)
         SAlayout.addWidget(self.exhibit,3,2)
         SAlayout.addWidget(self.exhibitDrop,3,3)
         SAlayout.addWidget(self.table,6,0,4,4)
 
+        self.search.clicked.connect(self.visitor_search_animals_button)
+
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SAlayout)
         self.search_exhibits.show()
 
+    def visitor_search_animals_button(self):
+        errorstr = ""
+        count = 0
+        count2 = 0
+        fullQuery = "SELECT name, species, exhibit_name, age, type FROM ANIMALS"
+        addQuery = []
+#validation checks
+        if len(str(self.wname.text())) > 0:
+            self.name = str(self.wname.text())
+            addQuery.append("lower(name) LIKE '%{}%'".format(self.name.lower()))
+        if len(str(self.wSpecies.text())) > 0:
+            self.species = str(self.wSpecies.text())
+            addQuery.append("lower(species) LIKE '%{}%'".format(self.species.lower()))
+        if len(str(self.exhibitDrop.currentText())) > 0:
+            self.exhibit = str(self.exhibitDrop.currentText())
+            addQuery.append("exhibit_name = '{}'".format(self.exhibit))
+        if len(self.wmaxAge.text()) > 0:
+            try:
+                int(self.wmaxAge.text())
+                self.maxAge = str(self.wmaxAge.text())
+                addQuery.append("age < '{}'".format(self.maxAge))
+                count += 1 
+            except:
+                errorstr += "- input for max age must be an integer\n"
+                count2 += 1
+        if len(self.wminAge.text()) > 0:
+            try:
+                int(self.wminAge.text())
+                self.minAge = str(self.wminAge.text())
+                addQuery.append("age > '{}'".format(self.minAge))
+                count += 1 
+            except:
+                errorstr += "- input for min age must be an integer\n"
+                count2 += 1
+        if (count == 2) and (int(self.minAge) > int(self.maxAge)):
+                errorstr += "- max age must be greater than min age\n"
+        if (count2 > 0):
+            messagebox.showwarning("Error", errorstr)
+
+#appending to the where statements for SQL query
+        if len(addQuery) > 0:
+            fullQuery += " WHERE "
+            for i in range(0,len(addQuery)-1):
+                fullQuery = fullQuery + addQuery[i] + " AND "
+            fullQuery += addQuery[len(addQuery)-1]
+
+#clear current table view before repoulating
+        self.model.clear()
+        self.table.setModel(self.model)
+
+        self.c = self.db.cursor()
+        self.c.execute(fullQuery)
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+#converts item to list from tuple
+            for j in i:
+                item = QStandardItem(str(j))
+#has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+
+        headerNames = ["Name", "Species", "Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(headerNames)
+        self.table.setModel(self.model)
+        self.table.resizeColumnsToContents()
+
+
     def staff_search_animals(self):
         self.setWindowTitle('Animals')
         SAlayout = QGridLayout()
-
 
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
