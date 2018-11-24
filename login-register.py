@@ -25,7 +25,6 @@
 # - visitor view exhibit history
 #     - same issue as visitor view show history
 # - staff view show history
-#     - easy to implement, just look up any of the other search functions
 #############################
 
 import sys
