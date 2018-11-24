@@ -681,10 +681,14 @@ class MainWindow(QWidget):
         count2 = 0
         count3 = 0
         count4 = 0
+        fullQuery = "SELECT exhibit_name, water, number_of_animals, size FROM EXHIBITS"
+        addQuery = []
 
         if len(self.animalMin) > 0:
             try:
                 self.animalMin = int(str(self.wanimalMin.text()))
+                self.animalMin = str(self.wanimalMin.text())
+                addQuery.append("number_of_animals > '{}'".format(self.animalMin))
                 count2 += 1
             except:
                 printstr += "- input for min animal number must be integer\n"
@@ -692,17 +696,21 @@ class MainWindow(QWidget):
         if len(self.animalMax) > 0:
             try:
                 self.animalMax = int(str(self.wanimalMax.text()))
+                self.animalMax = str(self.wanimalMax.text())
+                addQuery.append("number_of_animals < '{}'".format(self.animalMax))
                 count2 += 1
             except:
                 printstr += "- input for max animal number must be integer\n"
                 count += 1
         if count2 == 2:
-            if (self.animalMin > self.animalMax):
+            if (int(self.animalMin) > int(self.animalMax)):
                 printstr += "- min animals must be less than max animals\n"
                 count += 1
         if len(self.sizeMin) > 0:
             try:
                 self.sizeMin = int(str(self.wsizeMin.text()))
+                self.sizeMin = str(self.wsizeMin.text())
+                addQuery.append("size > '{}'".format(self.sizeMin))
                 count4 += 1
             except:
                 printstr += "- input for min size must be integer\n"
@@ -710,16 +718,51 @@ class MainWindow(QWidget):
         if len(self.sizeMax) > 0:
             try:
                 self.sizeMax = int(str(self.wsizeMax.text()))
+                self.sizeMax = str(self.wsizeMax.text())
+                addQuery.append("size < '{}'".format(self.sizeMax))
                 count4 += 1
             except:
                 printstr += "- input for max size must be integer\n"
                 count3 += 1
         if count4 == 2:
-            if (self.sizeMin > self.sizeMax):
+            if (int(self.sizeMin) > int(self.sizeMax)):
                 printstr += "- min size must be less than max size\n"
                 count3 += 1
+        if len(str(self.wname.text())) > 0:
+            self.name = str(self.wname.text())
+            addQuery.append("exhibit_name LIKE '%{}%'".format(self.name))
+        if len(str(self.waterDrop.currentText())) > 0:
+            self.water = str(self.waterDrop.currentText())
+            addQuery.append("water = '{}'".format(self.water))
         if ((count == 0) and (count3 == 0)):
             print("execute query")
+            #print(addQuery)
+            if len(addQuery) > 0:
+                fullQuery += " WHERE "
+                for i in range(0,len(addQuery)-1):
+                    fullQuery = fullQuery + addQuery[i] + " AND "
+                fullQuery += addQuery[len(addQuery)-1]
+            print(fullQuery)
+            self.model.clear()
+            self.table.setModel(self.model)
+
+            self.c = self.db.cursor()
+            self.c.execute(fullQuery)
+            result = self.c.fetchall()
+            for i in result:
+                row = []
+    #converts item to list from tuple
+                for j in i:
+                    item = QStandardItem(str(j))
+    #has to be converted to string in order to work
+                    item.setEditable(False)
+                    row.append(item)
+                self.model.appendRow(row)
+
+            headerNames = ["Exhibit_Name", "Water", "Number of Animals", "Size"]
+            self.model.setHorizontalHeaderLabels(headerNames)
+            self.table.setModel(self.model)
+            self.table.resizeColumnsToContents()
         else:
             messagebox.showwarning("Error", printstr)
             #print(printstr)
@@ -1046,6 +1089,8 @@ class MainWindow(QWidget):
                 row.append(item)
             self.model.appendRow(row)
 
+        headerNames = ["Name", "Exhibit", "Date"]
+        self.model.setHorizontalHeaderLabels(headerNames)
         self.table.setModel(self.model)
         self.table.resizeColumnsToContents()
 
