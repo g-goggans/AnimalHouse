@@ -1,5 +1,32 @@
 #!/usr/bin/env python3
 
+############################
+# WORKING FUNCTIONALITIES
+# - visitor search exhibits
+# - visitor search shows
+# - visitor search animals
+# - staff search animals 
+#       - issue with exhibit drop down menu (Commbobox)
+# - admin view visitors
+# - admin add animal 
+#       - does not exit out after animal is successfully added
+# - admin view staff
+# - admin add show 
+#       - does not exit out after show is successfully added
+############################
+# NONWORKING FUNCTIONALITIES
+# - admin view shows 
+#       - remove show button works, but the search button doesn't
+# - admin view animals 
+#       - remove animal button works, but the search button doesn't
+# - visitor view show history 
+#       - idk if the search results are correct
+#       - is visitor only supposed to see the shows that he/she has attended
+#       - or does visitor see all shows
+# - visitor view exhibit history
+# - staff view show history
+#############################
+
 import sys
 from datetime import datetime
 
