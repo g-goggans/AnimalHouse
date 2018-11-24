@@ -2,11 +2,7 @@
 
 ############################
 # WORKING FUNCTIONALITIES
-# - visitor search exhibits
-# - visitor search shows
 # - visitor search animals
-# - staff search animals 
-#     - issue with exhibit drop down menu (Combobox)
 # - admin view visitors
 # - admin view staff
 # - admin view animals 
@@ -24,7 +20,15 @@
 #     - or does visitor see all shows (even ones he/she didn't visit)
 # - visitor view exhibit history
 #     - same issue as visitor view show history
+# - staff search animals 
+#     - issue with exhibit drop down menu (Combobox)
+#     - pop up page about animal care info needs to be implemented
 # - staff view show history
+# - visitor search exhibits
+#     - log visit to exhibit button needs to be implemented
+# - visitor search shows
+#     - log visit to exhibit button needs to be implemented
+# - all animal and exhibit detail pages have not been created yet
 #############################
 
 import sys
