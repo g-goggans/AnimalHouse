@@ -6,25 +6,26 @@
 # - visitor search shows
 # - visitor search animals
 # - staff search animals 
-#       - issue with exhibit drop down menu (Commbobox)
+#     - issue with exhibit drop down menu (Combobox)
 # - admin view visitors
+# - admin view staff
+# - admin view animals 
+# - admin view shows 
 # - admin add animal 
 #       - does not exit out after animal is successfully added
-# - admin view staff
 # - admin add show 
-#       - does not exit out after show is successfully added
+#     - does not exit out after show is successfully added
 ############################
 # NONWORKING FUNCTIONALITIES
-# - admin view shows 
-#       - remove show button works, but the search button doesn't
-# - admin view animals 
-#       - remove animal button works, but the search button doesn't
+# - a lot of the .close() implmentations for most functionalities
 # - visitor view show history 
-#       - idk if the search results are correct
-#       - is visitor only supposed to see the shows that he/she has attended
-#       - or does visitor see all shows
+#     - idk if the search results are correct
+#     - is visitor only supposed to see the shows that he/she has attended
+#     - or does visitor see all shows (even ones he/she didn't visit)
 # - visitor view exhibit history
+#     - same issue as visitor view show history
 # - staff view show history
+#     - easy to implement, just look up any of the other search functions
 #############################
 
 import sys
@@ -1049,13 +1050,15 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.table,4,0,4,4)
         SSlayout.addWidget(self.logVisit,8,3)
 
-        self.search.clicked.connect(self.visitor_search_shows_button)
+        self.search.clicked.connect(self.search_shows_button)
 
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SSlayout)
         self.search_exhibits.show()
 
-    def visitor_search_shows_button(self):
+#DO NOT CHANGE THE NAME OF THIS METHOD
+#STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR SHOWS
+    def search_shows_button(self):
         fullQuery = "SELECT show_name, datetime, exhibit_name FROM SHOWS"
         addQuery = []
         count = 0
@@ -1192,13 +1195,15 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.exhibitDrop,3,3)
         SAlayout.addWidget(self.table,6,0,4,4)
 
-        self.search.clicked.connect(self.visitor_search_animals_button)
+        self.search.clicked.connect(self.search_animals_button)
 
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SAlayout)
         self.search_exhibits.show()
 
-    def visitor_search_animals_button(self):
+#DO NOT CHANGE THE NAME OF THIS METHOD
+#STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR ANIMALS
+    def search_animals_button(self):
         errorstr = ""
         count = 0
         count2 = 0
@@ -1523,7 +1528,13 @@ class MainWindow(QWidget):
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.date = QLabel("Date: ")
-        self.dateDrop = QComboBox() #this is wrong implementation
+        self.date = QLabel("Date: ")
+        self.dateDrop = QDateEdit() #this is wrong implementation
+        self.dateDrop.setCalendarPopup(True)
+        self.dateDrop.calendarWidget().installEventFilter(self)
+        self.dateDrop.setSpecialValueText(" ")
+        self.dateDrop.setDate(QDate.fromString( "01/01/0001", "dd/MM/yyyy" ))
+        self.dateDrop.setMinimumDate(QDate.fromString( "01/01/2010", "dd/MM/yyyy" ))
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
         self.RemoveShow = QPushButton("Remove Show")
@@ -1576,6 +1587,7 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.RemoveShow,8,3)
 
         self.RemoveShow.clicked.connect(self.remove_show)
+        self.search.clicked.connect(self.search_shows_button)
 
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SSlayout)
@@ -1592,10 +1604,7 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         self.c.execute("DELETE FROM SHOWS WHERE show_name = (%s) and datetime = (%s) and exhibit_name = (%s)", (name,time,exhibit))
         print("Removed",name,time,exhibit)
-#deletes item selected
-        #############################
-        #  does not work correctly  # 
-        #############################
+
         for index in sorted(show):
             #print(index)
             self.model.removeRow(index.row())
@@ -1677,7 +1686,8 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.RemoveAnimal,10,4)
 
         self.RemoveAnimal.clicked.connect(self.remove_animals)
-
+        self.search.clicked.connect(self.search_animals_button) 
+#found in line 1025, written after visitor_search_animals function
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SAlayout)
         self.search_exhibits.show()
