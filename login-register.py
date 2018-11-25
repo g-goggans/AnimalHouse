@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# min and max should be inclusive for all SQL statements
+
 ############################
 # WORKING FUNCTIONALITIES
 # - visitor search animals
@@ -7,28 +9,25 @@
 # - admin view staff
 # - admin view animals 
 # - admin view shows 
+# - visitor view show history 
+# - staff view show history
 # - admin add animal 
-#       - does not exit out after animal is successfully added
+#    - does not exit out after animal is successfully added
 # - admin add show 
 #     - does not exit out after show is successfully added
 ############################
 # NONWORKING FUNCTIONALITIES
 # - a lot of the .close() implmentations for most functionalities
-# - visitor view show history 
-#     - idk if the search results are correct
-#     - is visitor only supposed to see the shows that he/she has attended
-#     - or does visitor see all shows (even ones he/she didn't visit)
 # - visitor view exhibit history
-#     - same issue as visitor view show history
+#     - count By > and < does not work with SQL statement
 # - staff search animals 
-#     - issue with exhibit drop down menu (Combobox)
-#     - pop up page about animal care info needs to be implemented
-# - staff view show history
+#     - notes with animals need to appear
 # - visitor search exhibits
-#     - log visit to exhibit button needs to be implemented
+#     - log visit to exhibit button needs to be implemented (found on exhibit deatil page)
 # - visitor search shows
 #     - log visit to exhibit button needs to be implemented
-# - all animal and exhibit detail pages have not been created yet
+# - ALL animal and exhibit detail pages have not been created yet
+# - password hashing
 #############################
 
 import sys
@@ -64,7 +63,6 @@ import pymysql
 #stops annoyting tkinter pop ups
 root = Tk()
 root.withdraw()
-
 
 class MainWindow(QWidget):
 
@@ -719,7 +717,7 @@ class MainWindow(QWidget):
             try:
                 self.animalMin = int(str(self.wanimalMin.text()))
                 self.animalMin = str(self.wanimalMin.text())
-                addQuery.append("number_of_animals > '{}'".format(self.animalMin))
+                addQuery.append("number_of_animals >= '{}'".format(self.animalMin))
                 count2 += 1
             except:
                 printstr += "- input for min animal number must be integer\n"
@@ -728,7 +726,7 @@ class MainWindow(QWidget):
             try:
                 self.animalMax = int(str(self.wanimalMax.text()))
                 self.animalMax = str(self.wanimalMax.text())
-                addQuery.append("number_of_animals < '{}'".format(self.animalMax))
+                addQuery.append("number_of_animals <= '{}'".format(self.animalMax))
                 count2 += 1
             except:
                 printstr += "- input for max animal number must be integer\n"
@@ -741,7 +739,7 @@ class MainWindow(QWidget):
             try:
                 self.sizeMin = int(str(self.wsizeMin.text()))
                 self.sizeMin = str(self.wsizeMin.text())
-                addQuery.append("size > '{}'".format(self.sizeMin))
+                addQuery.append("size >= '{}'".format(self.sizeMin))
                 count4 += 1
             except:
                 printstr += "- input for min size must be integer\n"
@@ -750,7 +748,7 @@ class MainWindow(QWidget):
             try:
                 self.sizeMax = int(str(self.wsizeMax.text()))
                 self.sizeMax = str(self.wsizeMax.text())
-                addQuery.append("size < '{}'".format(self.sizeMax))
+                addQuery.append("size <= '{}'".format(self.sizeMax))
                 count4 += 1
             except:
                 printstr += "- input for max size must be integer\n"
@@ -808,7 +806,12 @@ class MainWindow(QWidget):
         self.wname = QLineEdit()
 
         self.date = QLabel("Date: ")
-        self.dateDrop = QComboBox() #this is wrong implementation
+        self.calendar = QDateEdit() #this is wrong implementation
+        self.calendar.setCalendarPopup(True)
+        self.calendar.calendarWidget().installEventFilter(self)
+        self.calendar.setSpecialValueText(" ")
+        self.calendar.setDate(QDate.fromString( "01/01/0001", "dd/MM/yyyy" ))
+        self.calendar.setMinimumDate(QDate.fromString( "01/01/2010", "dd/MM/yyyy" ))
 
         self.NumVisits = QLabel("Number of Visits: ")
         self.minVisits = QLineEdit()
@@ -816,15 +819,34 @@ class MainWindow(QWidget):
         self.minVisitsLabel = QLabel("Min")
         self.maxVisitsLabel = QLabel("Max")
 
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        # self.table = QTableView()
+        # self.model = QStandardItemModel()
+        # self.model.setColumnCount(3)
+        # headerNames = ["Name", "Exhibit", "Date"]
+        # self.model.setHorizontalHeaderLabels(headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
+        self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}' GROUP BY(exhibit_name)".format(user))
+        result = self.c.fetchall()
+        #print(result)
+
+        self.table = QTableView()
+        self.model = QStandardItemModel()
+        self.model.setColumnCount(4)
+        headerNames = ["Exhibit Name", "Time", "Number of Visits"]
+        self.model.setHorizontalHeaderLabels(headerNames)
+
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+                #print(row)
+            self.model.appendRow(row)
+
+        self.table.setModel(self.model)
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
@@ -833,7 +855,7 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.name, 1,0)
         SSlayout.addWidget(self.wname,1,1)
         SSlayout.addWidget(self.date,2,0)
-        SSlayout.addWidget(self.dateDrop,2,1)
+        SSlayout.addWidget(self.calendar,2,1)
         SSlayout.addWidget(self.NumVisits,1,2)
         SSlayout.addWidget(self.minVisitsLabel,0,3)
         SSlayout.addWidget(self.maxVisitsLabel,0,4)
@@ -841,9 +863,108 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.minVisits,1,3)
         SSlayout.addWidget(self.table,4,0,4,4)
 
+        self.search.clicked.connect(self.visitor_exhibit_history_search)
+
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SSlayout)
         self.search_exhibits.show()
+
+    def visitor_exhibit_history_search(self):
+        addQuery =[]
+        count = 0
+        count2 = 0
+        errorstr = ""
+        if len(str(self.wname.text())) > 0:
+            self.name = str(self.wname.text())
+            addQuery.append("exhibit_name LIKE '%{}%'".format(self.name))
+        self.date = str(self.calendar.date())
+        if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
+            self.date = ""
+        else:
+            self.year = ""
+            for i in range(19,23):
+                self.year += self.date[i]
+            print(self.year)
+            self.month = ""
+            for i in range(25,27):
+                self.month += self.date[i]
+            if "," in self.month:
+                self.month += "0"
+                self.month += self.month[0]
+                self.month = self.month[2:]
+            self.day = ""
+            for i in range(28,len(self.date)-1):
+                self.day += self.date[i]
+            if " " in self.day:
+                self.day = self.day.replace(" ","")
+            if len(self.day) == 1:
+                self.day += "0"
+                self.day += self.day[0]
+                self.day = self.day[1:]
+
+            self.date = ""
+            self.date = self.year + "-" + self.month + "-" + self.day 
+            print(self.date)
+            addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
+        if len(self.maxVisits.text()) > 0:
+            try:
+                int(self.maxVisits.text())
+                self.wmaxVisits = str(self.maxVisits.text())
+                addQuery.append("usernames <= '{}'".format(self.wmaxVisits))
+                count += 1 
+            except:
+                errorstr += "- input for max age must be an integer\n"
+                count2 += 1
+        if len(self.minVisits.text()) > 0:
+            try:
+                int(self.minVisits.text())
+                self.wminVisits = str(self.minVisits.text())
+                addQuery.append("usernames >= '{}'".format(self.wminVisits))
+                count += 1 
+            except:
+                errorstr += "- input for min age must be an integer\n"
+                count2 += 1
+        if (count == 2) and (int(self.minVisits.text()) > int(self.maxVisits.text())):
+                errorstr += "- max age must be greater than min age\n"
+                count2 += 1
+        if (count2 > 0):
+            messagebox.showwarning("Error", errorstr)
+
+        fullQuery = "SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}'".format(user)
+        if len(addQuery) > 0:
+            fullQuery += " and "
+            for i in range(0,len(addQuery)-1):
+                fullQuery = fullQuery + addQuery[i] + " and "
+            fullQuery = fullQuery + addQuery[len(addQuery)-1] + " "
+        fullQuery += "GROUP BY(exhibit_name)"
+        print(fullQuery)
+
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute(fullQuery)
+        result = self.c.fetchall()
+
+        self.model.clear()
+        self.table.setModel(self.model)
+
+        self.c = self.db.cursor()
+        self.c.execute(fullQuery)
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+#converts item to list from tuple
+            for j in i:
+                item = QStandardItem(str(j))
+#has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+
+        self.table.setModel(self.model)
+        self.table.resizeColumnsToContents()
+        
+
+
 
     def Visitor_Show_History(self):
         self.setWindowTitle('Show History')
@@ -882,7 +1003,7 @@ class MainWindow(QWidget):
 
 #fill dedfault table
         self.c = self.db.cursor()
-        self.c.execute("SELECT show_name, datetime, exhibit_name FROM SHOWS")
+        self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(user))
         result = self.c.fetchall()
         for i in result:
             row = []
@@ -923,10 +1044,8 @@ class MainWindow(QWidget):
         if len(self.exhibit) != 0:
             addQuery.append("exhibit_name = '{}'".format(self.exhibit))
         if len(self.name) != 0:
-            addQuery.append("lower(show_name) LIKE '%{}%'".format(self.name.lower()))
-        #######################################################
-        # need to figure out how to set up no default date
-        #######################################################
+            addQuery.append("lower(SHOWS.show_name) LIKE '%{}%'".format(self.name.lower()))
+        
         self.date = str(self.calendar.date())
         if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
             self.date = ""
@@ -955,11 +1074,11 @@ class MainWindow(QWidget):
             self.date = ""
             self.date = self.year + "-" + self.month + "-" + self.day 
             print(self.date)
-            addQuery.append("DATE(datetime) = '{}'".format(self.date))
+            addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
 
-        fullQuery = "SELECT show_name, datetime, exhibit_name FROM SHOWS"
+        fullQuery = "SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(user)
         if len(addQuery) > 0:
-            fullQuery += " WHERE "
+            fullQuery += " and "
             for i in range(0,len(addQuery)-1):
                 fullQuery = fullQuery + addQuery[i] + " and "
             fullQuery += addQuery[len(addQuery)-1]
@@ -1226,7 +1345,7 @@ class MainWindow(QWidget):
             try:
                 int(self.wmaxAge.text())
                 self.maxAge = str(self.wmaxAge.text())
-                addQuery.append("age < '{}'".format(self.maxAge))
+                addQuery.append("age <= '{}'".format(self.maxAge))
                 count += 1 
             except:
                 errorstr += "- input for max age must be an integer\n"
@@ -1235,7 +1354,7 @@ class MainWindow(QWidget):
             try:
                 int(self.wminAge.text())
                 self.minAge = str(self.wminAge.text())
-                addQuery.append("age > '{}'".format(self.minAge))
+                addQuery.append("age >= '{}'".format(self.minAge))
                 count += 1 
             except:
                 errorstr += "- input for min age must be an integer\n"
@@ -1304,12 +1423,11 @@ class MainWindow(QWidget):
         self.exhibitDrop = QComboBox()
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
+        self.c.execute("SELECT distinct(exhibit_name) FROM EXHIBITS")
 #exhibit drop down menu contents
         result = self.c.fetchall()
-        exDrop = [""]
-        for i in result:
-            exDrop.append(i[0])
+        print(result)
+        exDrop = ["","Birds","Pacific","Mountainous","Jungle","Sahara"]
         self.exhibitDrop.addItems(exDrop)
 
         self.table = QTableView()
@@ -1318,16 +1436,16 @@ class MainWindow(QWidget):
         headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
         self.model.setHorizontalHeaderLabels(headerNames)
 
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name FROM EXHIBITS")
+#         self.db = self.Connect()
+#         self.c = self.db.cursor()
+#         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
 
-#exhibit drop down menu contents
-        result = self.c.fetchall()
-        exDrop = [""]
-        for i in result:
-            exDrop.append(i[0])
-        #print(exDrop)
+# #exhibit drop down menu contents
+#         result = self.c.fetchall()
+#         exDrop = [""]
+#         for i in result:
+#             exDrop.append(i[0])
+#         #print(exDrop)
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -1343,7 +1461,7 @@ class MainWindow(QWidget):
                 row.append(item)
             self.model.appendRow(row)
 
-        self.exhibitDrop.addItems(exDrop)
+        #self.exhibitDrop.addItems(exDrop)
         self.table.setModel(self.model)
         self.table.doubleClicked.connect(self.staff_animal_care)
 
@@ -1395,7 +1513,7 @@ class MainWindow(QWidget):
             try:
                 int(self.wmaxAge.text())
                 self.maxAge = str(self.wmaxAge.text())
-                addQuery.append("age < '{}'".format(self.maxAge))
+                addQuery.append("age <= '{}'".format(self.maxAge))
                 count += 1 
             except:
                 errorstr += "- input for max age must be an integer\n"
@@ -1404,7 +1522,7 @@ class MainWindow(QWidget):
             try:
                 int(self.wminAge.text())
                 self.minAge = str(self.wminAge.text())
-                addQuery.append("age > '{}'".format(self.minAge))
+                addQuery.append("age >= '{}'".format(self.minAge))
                 count += 1 
             except:
                 errorstr += "- input for min age must be an integer\n"
@@ -1727,7 +1845,7 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS WHERE SHOWS.username=%s",(self.my_user[1]))
+        self.c.execute("SELECT show_name, datetime, exhibit FROM SHOWS WHERE SHOWS.username=%s",(self.my_user[1]))
         result = self.c.fetchall()
         for i in result:
             row = []
@@ -1938,7 +2056,9 @@ class MainWindow(QWidget):
 
     # check_user currently can only display the tuple from our database from which we query the row that matches the user and the password
     def check_user(self):
+        global user
         user = str(self.user_line_edit.text())
+
         pswd = str(self.password_line_edit.text())
 
         self.db = self.Connect()
