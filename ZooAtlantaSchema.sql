@@ -77,12 +77,12 @@ create table SHOW_VISITS (
 
 
 create table EXHIBIT_VISITS (
-    username varchar(32) references USERS(username)
-        on delete cascade
-        on update cascade,
     exhibit_name varchar(32) references EXHIBITS(exhibit_name)
         on delete cascade
         on update cascade,
+    username varchar(32) references USERS(username)
+        on delete cascade
+        on update cascade,
     datetime DATETIME not null,
-    primary key (username, exhibit_name)
+    primary key (exhibit_name, username, datetime)
 ) Engine = Innodb;
