@@ -65,14 +65,14 @@ create table ANIMAL_CARE (
 
 
 create table SHOW_VISITS (
-    username varchar(32) references USERS(username)
-        on delete cascade
-        on update cascade,
     show_name varchar(32) references SHOWS(show_name)
         on delete cascade
         on update cascade,
     datetime DATETIME not null,
-    primary key (username, show_name)
+    username varchar(32) references USERS(username)
+        on delete cascade
+        on update cascade,
+    primary key (username, show_name, datetime)
 ) Engine = Innodb;
 
 
