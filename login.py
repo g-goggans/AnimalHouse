@@ -1568,8 +1568,8 @@ class MainWindow(QWidget):
 
     def staff_animal_care(self):
         animal = self.table.selectionModel().selectedIndexes()
-        a_name = animal[0].data()
-        a_spec = animal[1].data()
+        self.a_name = animal[0].data()
+        self.a_spec = animal[1].data()
         e_name = animal[2].data()
         a_age = animal[3].data()
         a_type = animal[4].data()
@@ -1578,9 +1578,9 @@ class MainWindow(QWidget):
         SAlayout = QGridLayout()
         zooLabel = QLabel("Atlanta Zoo")
         emptyspace = QLabel("")
-        namelbl = QLabel("Name: " + str(a_name))
+        namelbl = QLabel("Name: " + str(self.a_name))
         agelbl = QLabel("Age: " + str(a_age))
-        specieslbl = QLabel("Species: " + str(a_spec))
+        specieslbl = QLabel("Species: " + str(self.a_spec))
         typelbl = QLabel("Type: " + str(a_type))
         exhibitlbl = QLabel("Exhibit: " + str(e_name))
         self.acNote = QLineEdit()
@@ -1611,6 +1611,20 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.acNote,4,0)
         SAlayout.addWidget(logNotesButton,4,1)
         SAlayout.addWidget(self.notesTable,6,0,4,4)
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username, note, datetime FROM ANIMAL_CARE WHERE ANIMAL_CARE.name = (%s) and ANIMAL_CARE.species = (%s)", (self.a_name, self.a_spec))
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+                #print(row)
+            self.model.appendRow(row)
 
         logNotesButton.clicked.connect(self.add_ac_note)
 
@@ -1627,7 +1641,6 @@ class MainWindow(QWidget):
         now = QStandardItem(str(datetime.now()))
         now.setEditable(False)
         row = [user,note,now]
-
         self.notesModel.appendRow(row)
         self.notesTable.setModel(self.notesModel)
 
