@@ -18,13 +18,7 @@
 ############################
 # NONWORKING FUNCTIONALITIES
 # - a lot of the .close() implmentations for most functionalities
-# - visitor view exhibit history
 #     - count By > and < does not work with SQL statement
-# - visitor search exhibits
-#     - log visit to exhibit button needs to be implemented (found on exhibit deatil page)
-# - visitor search shows
-#     - log visit to exhibit button needs to be implemented
-# - ALL animal and exhibit detail pages have not been created yet
 # - password hashing
 #############################
 
@@ -719,11 +713,27 @@ class MainWindow(QWidget):
         waterlbl = QLabel("Water Feature: " + str(self.waterornotwaterthatisthequestion))
         logNotesButton = QPushButton("Log Visit")
 
+
+
         self.animalTable = QTableView()
         self.animalModel = QStandardItemModel()
         self.animalModel.setColumnCount(2)
         headerNames = ["Name", "Species"]
         self.animalModel.setHorizontalHeaderLabels(headerNames)
+        
+
+        self.c = self.db.cursor()
+        self.c.execute("SELECT name, species FROM ANIMALS WHERE ANIMALS.exhibit_name = (%s)", (str(self.e_name)))
+        result = self.c.fetchall()
+        for i in result:
+            row = []
+#converts item to list from tuple
+            for j in i:
+                item = QStandardItem(str(j))
+#has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.animalModel.appendRow(row)
         self.animalTable.setModel(self.animalModel)
 
         SElayout.addWidget(zooLabel,0,0)
@@ -740,10 +750,13 @@ class MainWindow(QWidget):
         self.log_exhibit.setLayout(SElayout)
         self.log_exhibit.show()
 
-        self.logNotesButton.clicked.connect(self.phil)
+        logNotesButton.clicked.connect(self.phil)
 
     def phil(self):
-        
+        visitor = self.my_user[1]
+        now = str(datetime.now())
+        self.c.execute("INSERT INTO EXHIBIT_VISITS VALUES (%s,%s,%s)",(str(self.e_name), str(visitor), now))
+        messagebox.showwarning("Thank you!", "Your visit has been logged.")
 
     def visitor_exhibit_search_button(self):
         self.animalMin = str(self.wanimalMin.text())
@@ -1029,11 +1042,11 @@ class MainWindow(QWidget):
         self.exhibit_name = QLabel("Exhibit")
         self.exhibitDrop = QComboBox()
 
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
+        self.historyTable = QTableView()
+        self.historyModel = QStandardItemModel()
+        self.historyModel.setColumnCount(3)
         headerNames = ["Name", "Date", "Exhibit"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.historyModel.setHorizontalHeaderLabels(headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1058,10 +1071,10 @@ class MainWindow(QWidget):
 #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-            self.model.appendRow(row)
+            self.historyModel.appendRow(row)
 
-        self.table.setModel(self.model)
-        self.table.resizeColumnsToContents()
+        self.historyTable.setModel(self.historyModel)
+        self.historyTable.resizeColumnsToContents()
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,5)
