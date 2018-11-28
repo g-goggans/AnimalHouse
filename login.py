@@ -7,20 +7,20 @@
 # - visitor search animals
 # - admin view visitors
 # - admin view staff
-# - admin view animals 
-# - admin view shows 
-# - visitor view show history 
+# - admin view animals
+# - admin view shows
+# - visitor view show history
 # - staff view show history
-# - admin add animal 
+# - admin add animal
 #    - does not exit out after animal is successfully added
-# - admin add show 
+# - admin add show
 #     - does not exit out after show is successfully added
 ############################
 # NONWORKING FUNCTIONALITIES
 # - a lot of the .close() implmentations for most functionalities
 # - visitor view exhibit history
 #     - count By > and < does not work with SQL statement
-# - staff search animals 
+# - staff search animals
 #     - notes with animals need to appear
 # - visitor search exhibits
 #     - log visit to exhibit button needs to be implemented (found on exhibit deatil page)
@@ -257,7 +257,7 @@ class MainWindow(QWidget):
         datestring = "Jun 1 2005  1:33PM"
         datestring = datetime.strptime(datestring, '%b %d %Y %I:%M%p')
         print(datestring)
-        #momthDict = 
+        #momthDict =
         errorStr = ""
         count = 0
 #error handling for inputs
@@ -292,9 +292,9 @@ class MainWindow(QWidget):
             self.hour = str(self.hourDrop.currentText())
 #converting time to correct datetime format
             if (self.AMPM == "PM") and (self.hour != "12"):
-                self.hour = int(self.hourDrop.currentText()) + 12 
+                self.hour = int(self.hourDrop.currentText()) + 12
                 self.hour = str(self.hour)
-            else: 
+            else:
                  self.hour = str(self.hourDrop.currentText())
             if (self.hour == 12) and (self.AMPM == "AM"):
                 self.hour = "00"
@@ -410,7 +410,7 @@ class MainWindow(QWidget):
 #deletes item selected
         for index in sorted(staff):
             self.model.removeRow(index.row())
-            break 
+            break
         self.table.setModel(self.model)
         #print("Updated table")
 
@@ -449,7 +449,7 @@ class MainWindow(QWidget):
         typDrop = ["","Bird","Fish","Mammal","Amphibian","Reptile","Invertebrate"]
         # for i in result2:
         #     typDrop.append(i[0])
-        
+
         self.exhibitDrop.addItems(exDrop)
         self.typeDrop.addItems(typDrop)
 
@@ -526,9 +526,9 @@ class MainWindow(QWidget):
             messagebox.showwarning("Congrats", "Animals has been successfully added")
             ########################################
             # I don't know how to close this
-            ######################################### 
+            #########################################
             self.close()
-            
+
 
     def admin_view_visitor(self):
         self.setWindowTitle('View Visitors')
@@ -594,7 +594,7 @@ class MainWindow(QWidget):
         #print("Removed",name,email)
 #deletes item selected
         for index in sorted(visitor):
-            self.model.removeRow(index.row()) 
+            self.model.removeRow(index.row())
             break
         self.table.setModel(self.model)
         #print("Updated table")
@@ -903,7 +903,7 @@ class MainWindow(QWidget):
                 self.day = self.day[1:]
 
             self.date = ""
-            self.date = self.year + "-" + self.month + "-" + self.day 
+            self.date = self.year + "-" + self.month + "-" + self.day
             print(self.date)
             addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
         if len(self.maxVisits.text()) > 0:
@@ -911,7 +911,7 @@ class MainWindow(QWidget):
                 int(self.maxVisits.text())
                 self.wmaxVisits = str(self.maxVisits.text())
                 addQuery.append("usernames <= '{}'".format(self.wmaxVisits))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
                 count2 += 1
@@ -920,7 +920,7 @@ class MainWindow(QWidget):
                 int(self.minVisits.text())
                 self.wminVisits = str(self.minVisits.text())
                 addQuery.append("usernames >= '{}'".format(self.wminVisits))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
                 count2 += 1
@@ -962,7 +962,7 @@ class MainWindow(QWidget):
 
         self.table.setModel(self.model)
         self.table.resizeColumnsToContents()
-        
+
 
 
 
@@ -1045,7 +1045,7 @@ class MainWindow(QWidget):
             addQuery.append("exhibit_name = '{}'".format(self.exhibit))
         if len(self.name) != 0:
             addQuery.append("lower(SHOWS.show_name) LIKE '%{}%'".format(self.name.lower()))
-        
+
         self.date = str(self.calendar.date())
         if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
             self.date = ""
@@ -1072,7 +1072,7 @@ class MainWindow(QWidget):
                 self.day = self.day[1:]
 
             self.date = ""
-            self.date = self.year + "-" + self.month + "-" + self.day 
+            self.date = self.year + "-" + self.month + "-" + self.day
             print(self.date)
             addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
 
@@ -1217,7 +1217,7 @@ class MainWindow(QWidget):
                 self.day = self.day[1:]
 
             self.date = ""
-            self.date = self.year + "-" + self.month + "-" + self.day 
+            self.date = self.year + "-" + self.month + "-" + self.day
             addQuery.append("DATE(datetime) = '{}'".format(self.date))
         if len(addQuery) > 0:
             fullQuery += " WHERE "
@@ -1346,7 +1346,7 @@ class MainWindow(QWidget):
                 int(self.wmaxAge.text())
                 self.maxAge = str(self.wmaxAge.text())
                 addQuery.append("age <= '{}'".format(self.maxAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
                 count2 += 1
@@ -1355,7 +1355,7 @@ class MainWindow(QWidget):
                 int(self.wminAge.text())
                 self.minAge = str(self.wminAge.text())
                 addQuery.append("age >= '{}'".format(self.minAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
                 count2 += 1
@@ -1516,7 +1516,7 @@ class MainWindow(QWidget):
                 int(self.wmaxAge.text())
                 self.maxAge = str(self.wmaxAge.text())
                 addQuery.append("age <= '{}'".format(self.maxAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
                 count2 += 1
@@ -1525,7 +1525,7 @@ class MainWindow(QWidget):
                 int(self.wminAge.text())
                 self.minAge = str(self.wminAge.text())
                 addQuery.append("age >= '{}'".format(self.minAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
                 count2 += 1
@@ -1629,7 +1629,7 @@ class MainWindow(QWidget):
         row = [user,note,now]
 
         self.notesModel.appendRow(row)
-        self.table.setModel(self.notesModel)
+        self.notesTable.setModel(self.notesModel)
 
 
     def admin_view_shows(self):
@@ -1797,7 +1797,7 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.RemoveAnimal,10,4)
 
         self.RemoveAnimal.clicked.connect(self.remove_animals)
-        self.search.clicked.connect(self.search_animals_button) 
+        self.search.clicked.connect(self.search_animals_button)
 #found in line 1025, written after visitor_search_animals function
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SAlayout)
@@ -1814,7 +1814,7 @@ class MainWindow(QWidget):
 #deletes item selected
         for index in sorted(animal):
             self.model.removeRow(index.row())
-            break 
+            break
         self.table.setModel(self.model)
         print("Updated table")
 
