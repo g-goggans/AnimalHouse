@@ -654,6 +654,8 @@ class MainWindow(QWidget):
         #print(result)
 
         self.table = QTableView()
+        self.table.setSelectionBehavior(QTableView.SelectRows)
+        self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(4)
         headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
@@ -697,6 +699,51 @@ class MainWindow(QWidget):
         self.search_exhibits.show()
 
         self.search.clicked.connect(self.visitor_exhibit_search_button)
+        self.table.doubleClicked.connect(self.exhibit_details)
+
+    def exhibit_details(self):
+
+        exhibit = self.table.selectionModel().selectedIndexes()
+        self.e_name = exhibit[0].data()
+        self.e_size = exhibit[3].data()
+        self.e_num_animals = exhibit[2].data()
+        self.waterornotwaterthatisthequestion = exhibit[1].data()
+
+        self.setWindowTitle('Exhibit Detail')
+        SElayout = QGridLayout()
+        zooLabel = QLabel("Atlanta Zoo")
+        emptyspace = QLabel("")
+        namelbl = QLabel("Name: " + str(self.e_name))
+        sizelbl = QLabel("Size: " + str(self.e_size))
+        numAlbl = QLabel("Num Animals: " + str(self.e_num_animals))
+        waterlbl = QLabel("Water Feature: " + str(self.waterornotwaterthatisthequestion))
+        logNotesButton = QPushButton("Log Visit")
+
+        self.animalTable = QTableView()
+        self.animalModel = QStandardItemModel()
+        self.animalModel.setColumnCount(2)
+        headerNames = ["Name", "Species"]
+        self.animalModel.setHorizontalHeaderLabels(headerNames)
+        self.animalTable.setModel(self.animalModel)
+
+        SElayout.addWidget(zooLabel,0,0)
+        SElayout.addWidget(emptyspace, 1,0)
+        SElayout.addWidget(namelbl,2,0)
+        SElayout.addWidget(sizelbl, 2,1)
+        SElayout.addWidget(numAlbl,2,2)
+        SElayout.addWidget(waterlbl,2,3)
+        SElayout.addWidget(emptyspace,2,4)
+        SElayout.addWidget(logNotesButton,3,2)
+        SElayout.addWidget(self.animalTable,4,2)
+
+        self.log_exhibit = QDialog()
+        self.log_exhibit.setLayout(SElayout)
+        self.log_exhibit.show()
+
+        self.logNotesButton.clicked.connect(self.phil)
+
+    def phil(self):
+        
 
     def visitor_exhibit_search_button(self):
         self.animalMin = str(self.wanimalMin.text())
@@ -1124,13 +1171,13 @@ class MainWindow(QWidget):
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
         self.logVisit = QPushButton("Log Visit")
-        self.showsTable = QTableView()
-        self.showsTable.setSelectionBehavior(QTableView.SelectRows)
-        self.showsTable.setSelectionMode(QTableView.SingleSelection)
-        self.showsModel = QStandardItemModel()
-        self.showsModel.setColumnCount(3)
+        self.table = QTableView()
+        self.table.setSelectionBehavior(QTableView.SelectRows)
+        self.table.setSelectionMode(QTableView.SingleSelection)
+        self.model = QStandardItemModel()
+        self.model.setColumnCount(3)
         headerNames = ["Name", "Exhibit", "Date"]
-        self.showsModel.setHorizontalHeaderLabels(headerNames)
+        self.model.setHorizontalHeaderLabels(headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1152,10 +1199,10 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-            self.showsModel.appendRow(row)
+            self.model.appendRow(row)
 
         self.exhibitDrop.addItems(exDrop)
-        self.showsTable.setModel(self.showsModel)
+        self.table.setModel(self.model)
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
@@ -1169,7 +1216,7 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.dateDrop,2,3)
         SSlayout.addWidget(self.exhibit,3,0)
         SSlayout.addWidget(self.exhibitDrop,3,1)
-        SSlayout.addWidget(self.showsTable,4,0,4,4)
+        SSlayout.addWidget(self.table,4,0,4,4)
         SSlayout.addWidget(self.logVisit,8,3)
 
         self.search.clicked.connect(self.search_shows_button)
@@ -1249,12 +1296,25 @@ class MainWindow(QWidget):
         self.table.resizeColumnsToContents()
 
     def log_shows_button(self):
-        show = self.showsTable.selectionModel().selectedIndexes()
+        show = self.table.selectionModel().selectedIndexes()
         show_name = show[0].data()
-        show_exh = show[1].data()
         show_date = show[2].data()
+        show_exh = show[1].data()
         visitor = self.my_user[1]
-        self.c.execute("INSERT INTO SHOWS_VISITS VALUES (%s,%s,%s,%s)",(str(show_name), str(show_date), str(show_exh), str(visitor)))
+        self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(user))
+        result = self.c.fetchall()
+        newResults = []
+        for x in result:
+            newList = [x[0], str(x[1]), x[2]]
+            newResults.append(newList)
+        row = [show_name, show_date, show_exh]
+        if (row in newResults):
+            messagebox.showwarning("Error", "That show has already been logged")
+        elif (show_name == None):
+            messagebox.showwarning("Error", "Please Click a Show")
+        else:
+            self.c.execute("INSERT INTO SHOW_VISITS VALUES (%s,%s,%s)",(str(show_name), str(show_date), str(visitor)))
+            messagebox.showwarning("Thank you!", "Your visit has been logged.")
 
             
 
