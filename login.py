@@ -876,7 +876,7 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}' GROUP BY(exhibit_name)".format(self.my_user[1]))
+        self.c.execute("SELECT EXHIBIT_VISITS.exhibit_name, datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = '{}' AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name".format(self.my_user[1]))
         result = self.c.fetchall()
         #print(result)
 
@@ -921,12 +921,13 @@ class MainWindow(QWidget):
 
     def visitor_exhibit_history_search(self):
         addQuery =[]
+        addQuery2 = []
         count = 0
         count2 = 0
         errorstr = ""
         if len(str(self.wname.text())) > 0:
             self.name = str(self.wname.text())
-            addQuery.append("exhibit_name LIKE '%{}%'".format(self.name))
+            addQuery.append("EXHIBIT_VISITS.exhibit_name LIKE '%{}%'".format(self.name))
         self.date = str(self.calendar.date())
         if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
             self.date = ""
@@ -934,6 +935,7 @@ class MainWindow(QWidget):
             self.year = ""
             for i in range(19,23):
                 self.year += self.date[i]
+            print(self.year)
             self.month = ""
             for i in range(25,27):
                 self.month += self.date[i]
@@ -953,12 +955,13 @@ class MainWindow(QWidget):
 
             self.date = ""
             self.date = self.year + "-" + self.month + "-" + self.day 
-            addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
+            print(self.date)
+            addQuery.append("DATE(EXHIBIT_VISITS.datetime) = '{}'".format(self.date))
         if len(self.maxVisits.text()) > 0:
             try:
                 int(self.maxVisits.text())
                 self.wmaxVisits = str(self.maxVisits.text())
-                addQuery.append("usernames <= '{}'".format(self.wmaxVisits))
+                addQuery2.append("c <= '{}'".format(self.wmaxVisits))
                 count += 1 
             except:
                 errorstr += "- input for max age must be an integer\n"
@@ -967,7 +970,7 @@ class MainWindow(QWidget):
             try:
                 int(self.minVisits.text())
                 self.wminVisits = str(self.minVisits.text())
-                addQuery.append("usernames >= '{}'".format(self.wminVisits))
+                addQuery2.append("c >= '{}'".format(self.wminVisits))
                 count += 1 
             except:
                 errorstr += "- input for min age must be an integer\n"
@@ -978,13 +981,18 @@ class MainWindow(QWidget):
         if (count2 > 0):
             messagebox.showwarning("Error", errorstr)
 
-        fullQuery = "SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}'".format(user)
+        fullQuery = "SELECT EXHIBIT_VISITS.exhibit_name,datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = '{}' AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name".format(self.my_user[1])
         if len(addQuery) > 0:
             fullQuery += " and "
             for i in range(0,len(addQuery)-1):
                 fullQuery = fullQuery + addQuery[i] + " and "
             fullQuery = fullQuery + addQuery[len(addQuery)-1] + " "
-        fullQuery += "GROUP BY(exhibit_name)"
+        #fullQuery += "GROUP BY (exhibit_name)"
+        if len(addQuery2) > 0:
+            fullQuery += " HAVING "
+            for i in range(0,len(addQuery2)-1):
+                fullQuery = fullQuery + addQuery2[i] + " and "
+            fullQuery = fullQuery + addQuery2[len(addQuery)-1] + " "
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1006,6 +1014,9 @@ class MainWindow(QWidget):
                 item.setEditable(False)
                 row.append(item)
             self.model.appendRow(row)
+
+        headerNames = ["Exhibit Name", "Time", "Number of Visits"]
+        self.model.setHorizontalHeaderLabels(headerNames)
 
         self.table.setModel(self.model)
         self.table.resizeColumnsToContents()
