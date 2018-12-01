@@ -61,6 +61,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle("Login")
+        self.logged_in = False
         makewin = self.login()
 
     def login(self):
@@ -124,14 +125,16 @@ class MainWindow(QWidget):
         self.LogOut.clicked.connect(self.my_Log_Out)
         self.newWindow = TableWindow()
         self.newWindow.setLayout(layout)
+        self.hide()
         self.newWindow.show()
 
     def my_Log_Out(self):
         for page in self.openPages:
             page.close()
         self.my_user = None
+        self.logged_in = False
         self.newWindow.close()
-        self.login_button.clicked.connect(self.check_user)
+        self.show()
 
 
     def admin_functionality(self):
@@ -163,7 +166,10 @@ class MainWindow(QWidget):
 
         self.newWindow = TableWindow()
         self.newWindow.setLayout(layout)
+        self.hide()
         self.newWindow.show()
+        for page in self.openPages:
+            page.close()
         self.ViewShows.clicked.connect(self.admin_view_shows)
         self.ViewAnimals.clicked.connect(self.admin_view_animals)
         self.AddAnimals.clicked.connect(self.admin_add_animals)
@@ -173,7 +179,6 @@ class MainWindow(QWidget):
         self.LogOut.clicked.connect(self.my_Log_Out)
 
     def admin_add_show(self):
-        self.setWindowTitle('Add Show')
         SAlayout = QGridLayout()
 
         self.name = QLabel("Name: ")
@@ -241,7 +246,10 @@ class MainWindow(QWidget):
 
         self.add_shows = QDialog()
         self.add_shows.setLayout(SAlayout)
+        self.add_shows.setWindowTitle('Add Show')
         self.add_shows.show()
+        for page in self.openPages:
+            page.close()
         self.openPages.append(self.add_shows)
 
     def admin_add_show_button(self):
@@ -338,7 +346,6 @@ class MainWindow(QWidget):
         ############################################
 
     def admin_view_staff(self):
-        self.setWindowTitle('View Staff')
         SAlayout = QGridLayout()
 
         self.RemoveStaff = QPushButton("Remove Staff Member")
@@ -379,27 +386,28 @@ class MainWindow(QWidget):
         self.view_staff = QDialog()
         self.view_staff.setLayout(SAlayout)
         self.view_staff.show()
+        for page in self.openPages:
+            page.close()
+        self.view_staff.setWindowTitle('View Staff')
         self.openPages.append(self.view_staff)
 
     def remove_staff(self):
         staff = self.table.selectionModel().selectedIndexes()
         name = str(staff[0].data())
         email = str(staff[1].data())
-        #print(name,email)
         self.db = self.Connect()
         self.c = self.db.cursor()
 
         self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
-        #print("Removed",name,email)
+       
 #deletes item selected
         for index in sorted(staff):
             self.model.removeRow(index.row())
             break 
         self.table.setModel(self.model)
-        #print("Updated table")
+
 
     def admin_add_animals(self):
-        self.setWindowTitle('Add Animal')
         SAlayout = QGridLayout()
 
         self.name = QLabel("Name: ")
@@ -455,6 +463,9 @@ class MainWindow(QWidget):
         self.add_animals = QDialog()
         self.add_animals.setLayout(SAlayout)
         self.add_animals.show()
+        for page in self.openPages:
+            page.close()
+        self.add_animals.setWindowTitle('Add Animals')
         self.openPages.append(self.add_animals)
 
         self.AddAnimal.clicked.connect(self.admin_add_animal_button)
@@ -514,7 +525,6 @@ class MainWindow(QWidget):
             
 
     def admin_view_visitor(self):
-        self.setWindowTitle('View Visitors')
         SAlayout = QGridLayout()
 
         self.RemoveVisitor = QPushButton("Remove Visitor")
@@ -563,25 +573,24 @@ class MainWindow(QWidget):
         self.view_visitors = QDialog()
         self.view_visitors.setLayout(SAlayout)
         self.view_visitors.show()
+        for page in self.openPages:
+            page.close()
+        self.view_visitors.setWindowTitle('View Visitors')
         self.openPages.append(self.view_visitors)
 
     def remove_visitor(self):
         visitor = self.table.selectionModel().selectedIndexes()
         name = str(visitor[0].data())
         email = str(visitor[1].data())
-        #print(name,email)
         self.db = self.Connect()
         self.c = self.db.cursor()
 
         self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
-
-        #print("Removed",name,email)
 #deletes item selected
         for index in sorted(visitor):
             self.model.removeRow(index.row()) 
             break
         self.table.setModel(self.model)
-        #print("Updated table")
 
 
     def staff_functionality(self):
@@ -603,7 +612,10 @@ class MainWindow(QWidget):
 
         self.newWindow = TableWindow()
         self.newWindow.setLayout(layout)
+        self.hide()
         self.newWindow.show()
+        for page in self.openPages:
+            page.close()
         self.ViewShows.clicked.connect(self.staff_view_shows)
         self.SearchAnimals.clicked.connect(self.staff_search_animals)
 
@@ -612,7 +624,6 @@ class MainWindow(QWidget):
 
 
     def visitor_search_exhibits(self):
-        self.setWindowTitle('Exhibits')
         SElayout = QGridLayout()
 
         self.search = QPushButton("search")
@@ -636,8 +647,6 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         self.c.execute("SELECT * FROM EXHIBITS")
         result = self.c.fetchall()
-        #print(result)
-
         self.table = QTableView()
         self.table.setSelectionBehavior(QTableView.SelectRows)
         self.table.setSelectionMode(QTableView.SingleSelection)
@@ -652,7 +661,6 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-                #print(row)
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
@@ -682,6 +690,9 @@ class MainWindow(QWidget):
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SElayout)
         self.search_exhibits.show()
+        for page in self.openPages:
+            page.close()
+        self.search_exhibits.setWindowTitle('Search Exhibits')
         self.openPages.append(self.search_exhibits)
 
         self.search.clicked.connect(self.visitor_exhibit_search_button)
@@ -741,6 +752,7 @@ class MainWindow(QWidget):
         self.log_exhibit = QDialog()
         self.log_exhibit.setLayout(SElayout)
         self.log_exhibit.show()
+        self.log_exhibit.setWindowTitle('Log Exhibit')
         self.openPages.append(self.log_exhibit)
 
         logNotesButton.clicked.connect(self.log_note)
@@ -815,7 +827,6 @@ class MainWindow(QWidget):
             self.water = str(self.waterDrop.currentText())
             addQuery.append("water = '{}'".format(self.water))
         if ((count == 0) and (count3 == 0)):
-            #print(addQuery)
             if len(addQuery) > 0:
                 fullQuery += " WHERE "
                 for i in range(0,len(addQuery)-1):
@@ -843,10 +854,9 @@ class MainWindow(QWidget):
             self.table.resizeColumnsToContents()
         else:
             messagebox.showwarning("Error", printstr)
-            #print(printstr)
+          
 
     def Visitor_Exhibit_History(self):
-        self.setWindowTitle('Exhibit History')
         SSlayout = QGridLayout()
 
         self.search = QPushButton("search")
@@ -876,9 +886,9 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("SELECT EXHIBIT_VISITS.exhibit_name, datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = '{}' AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name".format(self.my_user[1]))
+        self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}' GROUP BY(exhibit_name)".format(self.my_user[1]))
         result = self.c.fetchall()
-        #print(result)
+   
 
         self.table = QTableView()
         self.model = QStandardItemModel()
@@ -892,7 +902,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-                #print(row)
+             
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
@@ -914,20 +924,22 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.visitor_exhibit_history_search)
 
-        self.search_exhibits = QDialog()
-        self.search_exhibits.setLayout(SSlayout)
-        self.search_exhibits.show()
-        self.openPages.append(self.search_exhibits)
+        self.exhibit_history = QDialog()
+        self.exhibit_history.setLayout(SSlayout)
+        self.exhibit_history.show()
+        for page in self.openPages:
+            page.close()
+        self.exhibit_history.setWindowTitle('Exhibit History')
+        self.openPages.append(self.exhibit_history)
 
     def visitor_exhibit_history_search(self):
         addQuery =[]
-        addQuery2 = []
         count = 0
         count2 = 0
         errorstr = ""
         if len(str(self.wname.text())) > 0:
             self.name = str(self.wname.text())
-            addQuery.append("EXHIBIT_VISITS.exhibit_name LIKE '%{}%'".format(self.name))
+            addQuery.append("exhibit_name LIKE '%{}%'".format(self.name))
         self.date = str(self.calendar.date())
         if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
             self.date = ""
@@ -935,7 +947,6 @@ class MainWindow(QWidget):
             self.year = ""
             for i in range(19,23):
                 self.year += self.date[i]
-            print(self.year)
             self.month = ""
             for i in range(25,27):
                 self.month += self.date[i]
@@ -955,13 +966,12 @@ class MainWindow(QWidget):
 
             self.date = ""
             self.date = self.year + "-" + self.month + "-" + self.day 
-            print(self.date)
-            addQuery.append("DATE(EXHIBIT_VISITS.datetime) = '{}'".format(self.date))
+            addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
         if len(self.maxVisits.text()) > 0:
             try:
                 int(self.maxVisits.text())
                 self.wmaxVisits = str(self.maxVisits.text())
-                addQuery2.append("c <= '{}'".format(self.wmaxVisits))
+                addQuery.append("usernames <= '{}'".format(self.wmaxVisits))
                 count += 1 
             except:
                 errorstr += "- input for max age must be an integer\n"
@@ -970,7 +980,7 @@ class MainWindow(QWidget):
             try:
                 int(self.minVisits.text())
                 self.wminVisits = str(self.minVisits.text())
-                addQuery2.append("c >= '{}'".format(self.wminVisits))
+                addQuery.append("usernames >= '{}'".format(self.wminVisits))
                 count += 1 
             except:
                 errorstr += "- input for min age must be an integer\n"
@@ -981,18 +991,13 @@ class MainWindow(QWidget):
         if (count2 > 0):
             messagebox.showwarning("Error", errorstr)
 
-        fullQuery = "SELECT EXHIBIT_VISITS.exhibit_name,datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = '{}' AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name".format(self.my_user[1])
+        fullQuery = "SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}'".format(self.my_user[1])
         if len(addQuery) > 0:
             fullQuery += " and "
             for i in range(0,len(addQuery)-1):
                 fullQuery = fullQuery + addQuery[i] + " and "
             fullQuery = fullQuery + addQuery[len(addQuery)-1] + " "
-        #fullQuery += "GROUP BY (exhibit_name)"
-        if len(addQuery2) > 0:
-            fullQuery += " HAVING "
-            for i in range(0,len(addQuery2)-1):
-                fullQuery = fullQuery + addQuery2[i] + " and "
-            fullQuery = fullQuery + addQuery2[len(addQuery)-1] + " "
+        fullQuery += "GROUP BY(exhibit_name)"
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1015,9 +1020,6 @@ class MainWindow(QWidget):
                 row.append(item)
             self.model.appendRow(row)
 
-        headerNames = ["Exhibit Name", "Time", "Number of Visits"]
-        self.model.setHorizontalHeaderLabels(headerNames)
-
         self.table.setModel(self.model)
         self.table.resizeColumnsToContents()
         
@@ -1025,7 +1027,6 @@ class MainWindow(QWidget):
 
 
     def Visitor_Show_History(self):
-        self.setWindowTitle('Show History')
         SSlayout = QGridLayout()
 
         self.search = QPushButton("search")
@@ -1093,6 +1094,9 @@ class MainWindow(QWidget):
         self.show_history = QDialog()
         self.show_history.setLayout(SSlayout)
         self.show_history.show()
+        for page in self.openPages:
+            page.close()
+        self.show_history.setWindowTitle('Show History')
         self.openPages.append(self.show_history)
 
     def view_show_history_search(self):
@@ -1133,7 +1137,7 @@ class MainWindow(QWidget):
             self.date = self.year + "-" + self.month + "-" + self.day 
             addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
 
-        fullQuery = "SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(user)
+        fullQuery = "SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(self.my_user[1])
         if len(addQuery) > 0:
             fullQuery += " and "
             for i in range(0,len(addQuery)-1):
@@ -1145,8 +1149,8 @@ class MainWindow(QWidget):
         self.c.execute(fullQuery)
         result = self.c.fetchall()
 
-        self.model.clear()
-        self.table.setModel(self.model)
+        self.historyModel.clear()
+        self.historyTable.setModel(self.historyModel)
 
         self.c = self.db.cursor()
         self.c.execute(fullQuery)
@@ -1159,13 +1163,12 @@ class MainWindow(QWidget):
 #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-            self.model.appendRow(row)
+            self.hsitroyModel.appendRow(row)
 
-        self.table.setModel(self.model)
-        self.table.resizeColumnsToContents()
+        self.historyTable.setModel(self.historyModel)
+        self.historyTable.resizeColumnsToContents()
 
     def visitor_search_shows(self):
-        self.setWindowTitle('Shows')
         SSlayout = QGridLayout()
 
         self.title1 = QLabel("Atalnta Zoo")
@@ -1236,6 +1239,9 @@ class MainWindow(QWidget):
         self.search_shows = QDialog()
         self.search_shows.setLayout(SSlayout)
         self.search_shows.show()
+        for page in self.openPages:
+            page.close()
+        self.search_shows.setWindowTitle('Search Shows')
         self.openPages.append(self.search_shows)
 
 #DO NOT CHANGE THE NAME OF THIS METHOD
@@ -1313,26 +1319,28 @@ class MainWindow(QWidget):
         show_date = show[2].data()
         show_exh = show[1].data()
         visitor = self.my_user[1]
-        self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(user))
-        result = self.c.fetchall()
-        newResults = []
-        for x in result:
-            newList = [x[0], str(x[1]), x[2]]
-            newResults.append(newList)
-        row = [show_name, show_date, show_exh]
-        if (row in newResults):
-            messagebox.showwarning("Error", "That show has already been logged")
-        elif (show_name == None):
-            messagebox.showwarning("Error", "Please Click a Show")
+        if (show_name[0] == None):
+            messagebox.showwarning("Error", "Please Select a Show.")
         else:
-            self.c.execute("INSERT INTO SHOW_VISITS VALUES (%s,%s,%s)",(str(show_name), str(show_date), str(visitor)))
-            messagebox.showwarning("Thank you!", "Your visit has been logged.")
+            self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(self.my_user[1]))
+            result = self.c.fetchall()
+            newResults = []
+            for x in result:
+                newList = [x[0], str(x[1]), x[2]]
+                newResults.append(newList)
+            row = [show_name, show_date, show_exh]
+            if (row in newResults):
+                messagebox.showwarning("Error", "That show has already been logged")
+            elif (show_name == None):
+                messagebox.showwarning("Error", "Please Click a Show")
+            else:
+                self.c.execute("INSERT INTO SHOW_VISITS VALUES (%s,%s,%s)",(str(show_name), str(show_date), str(visitor)))
+                messagebox.showwarning("Thank you!", "Your visit has been logged.")
 
             
 
 
     def visitor_search_animals(self):
-        self.setWindowTitle('Shows')
         SAlayout = QGridLayout()
 
         self.title1 = QLabel("Atalnta Zoo")
@@ -1365,7 +1373,7 @@ class MainWindow(QWidget):
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-        #print(exDrop)
+       
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -1407,6 +1415,9 @@ class MainWindow(QWidget):
         self.search_animals = QDialog()
         self.search_animals.setLayout(SAlayout)
         self.search_animals.show()
+        for page in self.openPages:
+            page.close()
+        self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
 
 #DO NOT CHANGE THE NAME OF THIS METHOD
@@ -1483,7 +1494,6 @@ class MainWindow(QWidget):
 
 
     def staff_search_animals(self):
-        self.setWindowTitle('Animals')
         SAlayout = QGridLayout()
 
         self.name = QLabel("Name: ")
@@ -1512,7 +1522,7 @@ class MainWindow(QWidget):
         self.c.execute("SELECT distinct(exhibit_name) FROM EXHIBITS")
 #exhibit drop down menu contents
         result = self.c.fetchall()
-        print(result)
+   
         exDrop = ["","Birds","Pacific","Mountainous","Jungle","Sahara"]
         self.exhibitDrop.addItems(exDrop)
 
@@ -1531,7 +1541,7 @@ class MainWindow(QWidget):
 #         exDrop = [""]
 #         for i in result:
 #             exDrop.append(i[0])
-#         #print(exDrop)
+#         
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -1573,10 +1583,16 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.search,2,4)
 
         self.search.clicked.connect(self.staff_search_animals_button)
+        self.headers = self.table.horizontalHeader()
+        yes = self.headers.sectionClicked(1)
+        print(yes)
 
         self.search_animals = QDialog()
         self.search_animals.setLayout(SAlayout)
         self.search_animals.show()
+        for page in self.openPages:
+            page.close()
+        self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
 
     def staff_search_animals_button(self):
@@ -1710,7 +1726,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-                #print(row)
+       
             self.notesModel.appendRow(row)
 
         logNotesButton.clicked.connect(self.add_ac_note)
@@ -1720,6 +1736,7 @@ class MainWindow(QWidget):
         self.animal_care = QDialog()
         self.animal_care.setLayout(SAlayout)
         self.animal_care.show()
+        self.animal_care.setWindowTitle('Animal Care')
         self.openPages.append(self.animal_care)
 
     def add_ac_note(self):
@@ -1736,7 +1753,6 @@ class MainWindow(QWidget):
 
 
     def admin_view_shows(self):
-        self.setWindowTitle('Shows')
         SSlayout = QGridLayout()
 
         self.search = QPushButton("Search")
@@ -1781,7 +1797,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-                #print(row)
+             
             self.model.appendRow(row)
 
         self.exhibitDrop.addItems(exDrop)
@@ -1805,7 +1821,10 @@ class MainWindow(QWidget):
 
         self.view_shows = QDialog()
         self.view_shows.setLayout(SSlayout)
+        self.view_shows.setWindowTitle('View Shows')
         self.view_shows.show()
+        for page in self.openPages:
+            page.close()
         self.openPages.append(self.view_shows)
 
     def remove_show(self):
@@ -1817,16 +1836,15 @@ class MainWindow(QWidget):
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("DELETE FROM SHOWS WHERE show_name = (%s) and datetime = (%s) and exhibit_name = (%s)", (name,time,exhibit))
-        print("Removed",name,time,exhibit)
+
 
         for index in sorted(show):
-            #print(index)
+            
             self.model.removeRow(index.row())
             break
         self.table.setModel(self.model)
 
     def admin_view_animals(self):
-        self.setWindowTitle('Shows')
         SAlayout = QGridLayout()
 
         self.search = QPushButton("search")
@@ -1902,7 +1920,10 @@ class MainWindow(QWidget):
 #found in line 1025, written after visitor_search_animals function
         self.view_animals = QDialog()
         self.view_animals.setLayout(SAlayout)
+        self.view_animals.setWindowTitle('View Animals')
         self.view_animals.show()
+        for page in self.openPages:
+            page.close()
         self.openPages.append(self.view_animals)
 
     def remove_animals(self):
@@ -1920,7 +1941,6 @@ class MainWindow(QWidget):
         self.table.setModel(self.model)
 
     def staff_view_shows(self):
-        self.setWindowTitle('Shows')
 
         atlantaZoo = QLabel()
         atlantaZoo.setText("Atlanta Zoo")
@@ -1957,12 +1977,14 @@ class MainWindow(QWidget):
 
         self.view_shows = QDialog()
         self.view_shows.setLayout(SSlayout)
+        self.view_shows.setWindowTitle('View Shows')
         self.view_shows.show()
+        for page in self.openPages:
+            page.close()
         self.openPages.append(self.view_shows)
 
 
     def search_exhibits(self):
-        self.setWindowTitle('Exhibits')
         SElayout = QGridLayout()
 
         self.search = QPushButton("search")
@@ -1986,7 +2008,7 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         self.c.execute("SELECT * FROM EXHIBITS")
         result = self.c.fetchall()
-        #print(result)
+
 
         self.table = QTableView()
         self.model = QStandardItemModel()
@@ -2000,7 +2022,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-                #print(row)
+        
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
@@ -2029,7 +2051,10 @@ class MainWindow(QWidget):
 
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SElayout)
+        self.search_exhibits.setWindowTitle('Search Exhibits')
         self.search_exhibits.show()
+        for page in self.openPages:
+            page.close()
 
         self.search.clicked.connect(self.exhibitSearch)
 
@@ -2071,10 +2096,10 @@ class MainWindow(QWidget):
                 printstr += "- min size must be less than max size\n"
                 count2 += 1
         if ((count == 0) and (count2 == 0)):
-            print("here")
+            pass
         else:
             messagebox.showwarning("Error", printstr)
-            #print(printstr)
+         
 
     def search_shows(self):
         self.setWindowTitle('Shows')
@@ -2116,7 +2141,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-                #print(row)
+               
             self.model.appendRow(row)
 
         self.exhibitDrop.addItems(exDrop)
@@ -2140,11 +2165,12 @@ class MainWindow(QWidget):
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SSlayout)
         self.search_exhibits.show()
+        for page in self.openPages:
+            page.close()
 
     def try_again(self):
         self.password_line_edit.clear()
 
-    # check_user currently can only display the tuple from our database from which we query the row that matches the user and the password
     def check_user(self):
         user = str(self.user_line_edit.text())
 
@@ -2153,30 +2179,43 @@ class MainWindow(QWidget):
         self.db = self.Connect()
         self.c = self.db.cursor()
 
-        # tuple for logged in user
-        self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
-        self.my_user = self.c.fetchone()
-        if (self.my_user == None):
-            messagebox.showwarning("Error", "Username or password incorrect. \n Please try again.")
-            self.try_again()
-
-        elif (self.my_user[3] == 'visitor'):
-            self.visitor_functionality()
-            self.password_line_edit.clear()
-            self.user_line_edit.clear()
-        elif (self.my_user[3] == 'admin'):
-            self.admin_functionality()
-            self.password_line_edit.clear()
-            self.user_line_edit.clear()
-        elif (self.my_user[3] == 'staff'):
-            self.staff_functionality()
-            self.password_line_edit.clear()
-            self.user_line_edit.clear()
+        if (self.logged_in):
+            messagebox.showwarning("Error", "Please log out before logging in")
         else:
-            messagebox.showwarning("Error", "Unrecognized account type.\nCheck database.")
+            self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s AND U.password=%s",(user,pswd))
+            self.my_user = self.c.fetchone()
+            if (self.my_user == None):
+                messagebox.showwarning("Error", "Username or password incorrect. \n Please try again.")
+                self.try_again()
+
+            elif (self.my_user[3] == 'visitor'):
+                self.visitor_functionality()
+                self.logged_in = True
+                self.password_line_edit.clear()
+                self.user_line_edit.clear()
+                self.user_line_edit.setFocus()
+            elif (self.my_user[3] == 'admin'):
+                self.admin_functionality()
+                self.logged_in = True
+                self.password_line_edit.clear()
+                self.user_line_edit.clear()
+                self.user_line_edit.setFocus()
+            elif (self.my_user[3] == 'staff'):
+                self.staff_functionality()
+                self.logged_in = True
+                self.password_line_edit.clear()
+                self.user_line_edit.clear()
+                self.user_line_edit.setFocus()
+            else:
+                messagebox.showwarning("Error", "Unrecognized account type.\nCheck database.")
 
 
-
+    def keyPressEvent(self, event):
+        if (event.key() == Qt.Key_Return):
+            if (self.logged_in):
+                pass
+            else:
+                self.check_user()
 
 
     def go_to_register(self):
@@ -2227,6 +2266,8 @@ class MainWindow(QWidget):
         self.go_to_register.setLayout(regLayout)
         self.go_to_register.setWindowTitle('Register')
         self.go_to_register.show()
+        for page in self.openPages:
+            page.close()
 
 
     def register_visitor(self):
@@ -2243,17 +2284,17 @@ class MainWindow(QWidget):
 
 #conducting checks for registration information for visitors
         if len(self.pswd) < 8:
-            #print("Password needs to be more than 8 characters")
+
             printstr += "Password needs to be more than 8 characters\n"
             count += 1
 
         if self.confirmpswd != self.pswd:
-            #print("Password must match Confirm Password")
+           
             printstr += "Password must match Confirm Password\n"
             count+=1
 
         if "@" not in self.email or "." not in self.email:
-            #print("Email must meet email format with @ and . symbols")
+         
             printstr += "Email must meet email format with @ and . symbols\n"
             count+=1
 
@@ -2298,17 +2339,17 @@ class MainWindow(QWidget):
 
 #conducting checks for registration information for visitors
         if len(self.pswd) < 8:
-            #print("Password needs to be more than 8 characters")
+           
             printstr += "Password needs to be more than 8 characters\n"
             count += 1
 
         if self.confirmpswd != self.pswd:
-            #print("Password must match Confirm Password")
+    
             printstr += "Password must match Confirm Password\n"
             count+=1
 
         if "@" not in self.email or "." not in self.email:
-            #print("Email must meet email format with @ and . symbols")
+          
             printstr += "Email must meet email format with @ and . symbols\n"
             count+=1
 
