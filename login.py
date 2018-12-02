@@ -1317,13 +1317,13 @@ class MainWindow(QWidget):
 
     def log_shows_button(self):
         show = self.table.selectionModel().selectedIndexes()
-        show_name = show[0].data()
-        show_date = show[2].data()
-        show_exh = show[1].data()
         visitor = self.my_user[1]
-        if (show_name[0] == None):
-            messagebox.showwarning("Error", "Please Select a Show.")
+        if (len(show) == 0):
+            messagebox.showwarning("Error", "Please Select a Show to log.")
         else:
+            show_name = show[0].data()
+            show_date = show[2].data()
+            show_exh = show[1].data()
             self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(self.my_user[1]))
             result = self.c.fetchall()
             newResults = []
@@ -1333,8 +1333,6 @@ class MainWindow(QWidget):
             row = [show_name, show_date, show_exh]
             if (row in newResults):
                 messagebox.showwarning("Error", "That show has already been logged")
-            elif (show_name == None):
-                messagebox.showwarning("Error", "Please Click a Show")
             else:
                 self.c.execute("INSERT INTO SHOW_VISITS VALUES (%s,%s,%s)",(str(show_name), str(show_date), str(visitor)))
                 messagebox.showwarning("Thank you!", "Your visit has been logged.")
@@ -1585,9 +1583,7 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.search,2,4)
 
         self.search.clicked.connect(self.staff_search_animals_button)
-        self.headers = self.table.horizontalHeader()
-        self.headers.sectionClicked(1)
-        print(yes)
+
 
         self.search_animals = QDialog()
         self.search_animals.setLayout(SAlayout)
@@ -2298,8 +2294,8 @@ class MainWindow(QWidget):
             printstr += "Password must match Confirm Password\n"
             count+=1
 
-        if "@" not in self.email or "." not in self.email:
-            printstr += "Email must meet email format with @ and . symbols\n"
+        if not re.match(r"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",self.email):
+            printstr += "Please use a valid email address."
             count+=1
 
         if len(self.user) == 0:
@@ -2355,9 +2351,8 @@ class MainWindow(QWidget):
             printstr += "Password must match Confirm Password\n"
             count+=1
 
-        if "@" not in self.email or "." not in self.email:
-          
-            printstr += "Email must meet email format with @ and . symbols\n"
+        if not re.match(r"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",self.email):
+            printstr += "Please use a valid email address."
             count+=1
 
         if len(self.user) == 0:
