@@ -643,6 +643,7 @@ class MainWindow(QWidget):
         self.wsizeMax = QLineEdit()
         self.Water = QLabel("Water Feature")
         self.waterDrop = QComboBox()
+        self.back = QPushButton("Back")
 
         self.waterDrop.addItems(["","Yes","No"])
         self.db = self.Connect()
@@ -686,6 +687,7 @@ class MainWindow(QWidget):
         SElayout.addWidget(self.wsizeMax,6,2)
         SElayout.addWidget(self.Water, 7,0)
         SElayout.addWidget(self.waterDrop, 7,1)
+        SElayout.addWidget(self.back,7,3)
 
         SElayout.addWidget(self.table,8,0,4,4)
 
@@ -698,10 +700,16 @@ class MainWindow(QWidget):
         self.openPages.append(self.search_exhibits)
 
         self.search.clicked.connect(self.visitor_exhibit_search_button)
+        self.back.clicked.connect(self.bac_button)
         self.table.doubleClicked.connect(self.exhibit_details)
+
+    def bac_button(self):
+        for pages in self.openPages:
+            pages.close()
 
     def exhibit_details(self):
 
+        self.back = QPushButton("Back")
         exhibit = self.table.selectionModel().selectedIndexes()
         self.e_name = exhibit[0].data()
         self.e_size = exhibit[3].data()
@@ -750,6 +758,7 @@ class MainWindow(QWidget):
         SElayout.addWidget(emptyspace,2,4)
         SElayout.addWidget(logNotesButton,3,2)
         SElayout.addWidget(self.animalTable,4,2)
+        SElayout.addWidget(self.back,4,0)
 
         self.log_exhibit = QDialog()
         self.log_exhibit.setLayout(SElayout)
@@ -758,6 +767,11 @@ class MainWindow(QWidget):
         self.openPages.append(self.log_exhibit)
 
         logNotesButton.clicked.connect(self.log_note)
+        self.back.clicked.connect(self.back_out_of_exhibit_detail)
+
+    def back_out_of_exhibit_detail(self):
+        self.log_exhibit.close()
+        self.search_exhibits.setFocus()
 
     def log_note(self):
         visitor = self.my_user[1]
@@ -853,7 +867,6 @@ class MainWindow(QWidget):
             headerNames = ["Exhibit_Name", "Water", "Number of Animals", "Size"]
             self.model.setHorizontalHeaderLabels(headerNames)
             self.table.setModel(self.model)
-            self.table.resizeColumnsToContents()
         else:
             messagebox.showwarning("Error", printstr)
 
@@ -879,6 +892,7 @@ class MainWindow(QWidget):
         self.maxVisits = QLineEdit()
         self.minVisitsLabel = QLabel("Min")
         self.maxVisitsLabel = QLabel("Max")
+        self.back = QPushButton("Back")
 
         # self.table = QTableView()
         # self.model = QStandardItemModel()
@@ -894,7 +908,7 @@ class MainWindow(QWidget):
 
         self.table = QTableView()
         self.model = QStandardItemModel()
-        self.model.setColumnCount(4)
+        self.model.setColumnCount(3)
         headerNames = ["Exhibit Name", "Time", "Number of Visits"]
         self.model.setHorizontalHeaderLabels(headerNames)
 
@@ -912,7 +926,7 @@ class MainWindow(QWidget):
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
         SSlayout.setRowStretch(1,3)
-        SSlayout.addWidget(self.search,3,3)
+        SSlayout.addWidget(self.search,3,4)
         SSlayout.addWidget(self.name, 1,0)
         SSlayout.addWidget(self.wname,1,1)
         SSlayout.addWidget(self.date,2,0)
@@ -922,9 +936,11 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.maxVisitsLabel,0,4)
         SSlayout.addWidget(self.maxVisits,1,4)
         SSlayout.addWidget(self.minVisits,1,3)
-        SSlayout.addWidget(self.table,4,0,4,4)
+        SSlayout.addWidget(self.table,4,0,3,3)
+        SSlayout.addWidget(self.back,7,4)
 
         self.search.clicked.connect(self.visitor_exhibit_history_search)
+        self.back.clicked.connect(self.bac_button)
 
         self.exhibit_history = QDialog()
         self.exhibit_history.setLayout(SSlayout)
@@ -1023,9 +1039,8 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
-        self.table.resizeColumnsToContents()
-
-
+        headerNames = ["Exhibit Name", "Time", "Number of Visits"]
+        self.model.setHorizontalHeaderLabels(headerNames)
 
 
     def Visitor_Show_History(self):
@@ -1044,6 +1059,7 @@ class MainWindow(QWidget):
 
         self.exhibit_name = QLabel("Exhibit")
         self.exhibitDrop = QComboBox()
+        self.back = QPushButton("Back")
 
         self.historyTable = QTableView()
         self.historyModel = QStandardItemModel()
@@ -1077,24 +1093,25 @@ class MainWindow(QWidget):
             self.historyModel.appendRow(row)
 
         self.historyTable.setModel(self.historyModel)
-        self.historyTable.resizeColumnsToContents()
 
-        SSlayout = QGridLayout()
-        SSlayout.setColumnStretch(1,5)
-        SSlayout.setRowStretch(1,5)
-        SSlayout.addWidget(self.search,3,7)
-        SSlayout.addWidget(self.name, 1,0,1,1)
-        SSlayout.addWidget(self.wname,1,1)
-        SSlayout.addWidget(self.date,2,0)
-        SSlayout.addWidget(self.calendar,2,1,1,5)
-        SSlayout.addWidget(self.exhibit_name,3,0)
-        SSlayout.addWidget(self.exhibitDrop,3 ,1)
-        SSlayout.addWidget(self.historyTable,4,0,6,6)
+        SAlayout = QGridLayout()
+        SAlayout.setColumnStretch(1,6)
+        SAlayout.setRowStretch(1,6)
+        SAlayout.addWidget(self.search,1,7)
+        SAlayout.addWidget(self.name, 1,0,1,1)
+        SAlayout.addWidget(self.wname,1,1)
+        SAlayout.addWidget(self.date,2,0)
+        SAlayout.addWidget(self.calendar,2,1,1,5)
+        SAlayout.addWidget(self.exhibit_name,3,0)
+        SAlayout.addWidget(self.exhibitDrop,3,1)
+        SAlayout.addWidget(self.historyTable,4,0,7,8)
+        SAlayout.addWidget(self.back,3,7)
 
         self.search.clicked.connect(self.view_show_history_search)
+        self.back.clicked.connect(self.bac_button)
 
         self.show_history = QDialog()
-        self.show_history.setLayout(SSlayout)
+        self.show_history.setLayout(SAlayout)
         self.show_history.show()
         for page in self.openPages:
             page.close()
@@ -1165,10 +1182,11 @@ class MainWindow(QWidget):
 #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-            self.hsitroyModel.appendRow(row)
+            self.historyModel.appendRow(row)
 
+        headerNames = ["Name", "Date", "Exhibit"]
+        self.historyModel.setHorizontalHeaderLabels(headerNames)
         self.historyTable.setModel(self.historyModel)
-        self.historyTable.resizeColumnsToContents()
 
     def visitor_search_shows(self):
         SSlayout = QGridLayout()
@@ -1188,6 +1206,7 @@ class MainWindow(QWidget):
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
         self.logVisit = QPushButton("Log Visit")
+        self.back = QPushButton("Back")
         self.table = QTableView()
         self.table.setSelectionBehavior(QTableView.SelectRows)
         self.table.setSelectionMode(QTableView.SingleSelection)
@@ -1234,8 +1253,10 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.exhibitDrop,3,1)
         SSlayout.addWidget(self.table,4,0,4,4)
         SSlayout.addWidget(self.logVisit,8,3)
+        SSlayout.addWidget(self.back,8,0)
 
         self.search.clicked.connect(self.search_shows_button)
+        self.back.clicked.connect(self.bac_button)
         self.logVisit.clicked.connect(self.log_shows_button)
 
         self.search_shows = QDialog()
@@ -1313,7 +1334,6 @@ class MainWindow(QWidget):
         headerNames = ["Name", "Exhibit", "Date"]
         self.model.setHorizontalHeaderLabels(headerNames)
         self.table.setModel(self.model)
-        self.table.resizeColumnsToContents()
 
     def log_shows_button(self):
         show = self.table.selectionModel().selectedIndexes()
@@ -1358,6 +1378,7 @@ class MainWindow(QWidget):
         self.wmaxAge = QLineEdit()
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
+        self.back = QPushButton("Back")
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
@@ -1408,9 +1429,11 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.wmaxAge,5,2)
         SAlayout.addWidget(self.exhibit,3,2)
         SAlayout.addWidget(self.exhibitDrop,3,3)
-        SAlayout.addWidget(self.table,6,0,4,4)
+        SAlayout.addWidget(self.table,6,0,4,6)
+        SAlayout.addWidget(self.back,5,3)
 
         self.search.clicked.connect(self.search_animals_button)
+        self.back.clicked.connect(self.bac_button)
 
         self.search_animals = QDialog()
         self.search_animals.setLayout(SAlayout)
@@ -1490,7 +1513,6 @@ class MainWindow(QWidget):
         headerNames = ["Name", "Species", "Exhibit", "Age", "Type"]
         self.model.setHorizontalHeaderLabels(headerNames)
         self.table.setModel(self.model)
-        self.table.resizeColumnsToContents()
 
 
     def staff_search_animals(self):
@@ -1664,7 +1686,6 @@ class MainWindow(QWidget):
         headerNames = ["Name", "Species", "Exhibit", "Age", "Type"]
         self.model.setHorizontalHeaderLabels(headerNames)
         self.table.setModel(self.model)
-        self.table.resizeColumnsToContents()
 
 
     def staff_animal_care(self):
