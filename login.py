@@ -7,13 +7,13 @@
 # - visitor search animals
 # - admin view visitors
 # - admin view staff
-# - admin view animals 
-# - admin view shows 
-# - visitor view show history 
+# - admin view animals
+# - admin view shows
+# - visitor view show history
 # - staff view show history
-# - admin add animal 
+# - admin add animal
 #    - does not exit out after animal is successfully added
-# - admin add show 
+# - admin add show
 #     - does not exit out after show is successfully added
 ############################
 # NONWORKING FUNCTIONALITIES
@@ -257,7 +257,7 @@ class MainWindow(QWidget):
     def admin_add_show_button(self):
         datestring = "Jun 1 2005  1:33PM"
         datestring = datetime.strptime(datestring, '%b %d %Y %I:%M%p')
-        #momthDict = 
+        #momthDict =
         errorStr = ""
         count = 0
 #error handling for inputs
@@ -292,9 +292,9 @@ class MainWindow(QWidget):
             self.hour = str(self.hourDrop.currentText())
 #converting time to correct datetime format
             if (self.AMPM == "PM") and (self.hour != "12"):
-                self.hour = int(self.hourDrop.currentText()) + 12 
+                self.hour = int(self.hourDrop.currentText()) + 12
                 self.hour = str(self.hour)
-            else: 
+            else:
                  self.hour = str(self.hourDrop.currentText())
             if (self.hour == 12) and (self.AMPM == "AM"):
                 self.hour = "00"
@@ -401,11 +401,11 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
 
         self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
-       
+
 #deletes item selected
         for index in sorted(staff):
             self.model.removeRow(index.row())
-            break 
+            break
         self.table.setModel(self.model)
 
 
@@ -443,7 +443,7 @@ class MainWindow(QWidget):
         typDrop = ["","Bird","Fish","Mammal","Amphibian","Reptile","Invertebrate"]
         # for i in result2:
         #     typDrop.append(i[0])
-        
+
         self.exhibitDrop.addItems(exDrop)
         self.typeDrop.addItems(typDrop)
 
@@ -523,8 +523,8 @@ class MainWindow(QWidget):
             messagebox.showwarning("Congrats", "Animals has been successfully added")
             ########################################
             # I don't know how to close this
-            ######################################### 
-            
+            #########################################
+
 
     def admin_view_visitor(self):
         SAlayout = QGridLayout()
@@ -590,7 +590,7 @@ class MainWindow(QWidget):
         self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
 #deletes item selected
         for index in sorted(visitor):
-            self.model.removeRow(index.row()) 
+            self.model.removeRow(index.row())
             break
         self.table.setModel(self.model)
 
@@ -725,7 +725,7 @@ class MainWindow(QWidget):
         self.animalModel.setColumnCount(2)
         headerNames = ["Name", "Species"]
         self.animalModel.setHorizontalHeaderLabels(headerNames)
-        
+
 
         self.c = self.db.cursor()
         self.c.execute("SELECT name, species FROM ANIMALS WHERE ANIMALS.exhibit_name = (%s)", (str(self.e_name)))
@@ -856,7 +856,7 @@ class MainWindow(QWidget):
             self.table.resizeColumnsToContents()
         else:
             messagebox.showwarning("Error", printstr)
-          
+
 
     def Visitor_Exhibit_History(self):
         SSlayout = QGridLayout()
@@ -890,7 +890,7 @@ class MainWindow(QWidget):
         self.c = self.db.cursor()
         self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}' GROUP BY(exhibit_name)".format(self.my_user[1]))
         result = self.c.fetchall()
-   
+
 
         self.table = QTableView()
         self.model = QStandardItemModel()
@@ -904,7 +904,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-             
+
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
@@ -967,14 +967,14 @@ class MainWindow(QWidget):
                 self.day = self.day[1:]
 
             self.date = ""
-            self.date = self.year + "-" + self.month + "-" + self.day 
+            self.date = self.year + "-" + self.month + "-" + self.day
             addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
         if len(self.maxVisits.text()) > 0:
             try:
                 int(self.maxVisits.text())
                 self.wmaxVisits = str(self.maxVisits.text())
                 addQuery.append("usernames <= '{}'".format(self.wmaxVisits))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
                 count2 += 1
@@ -983,7 +983,7 @@ class MainWindow(QWidget):
                 int(self.minVisits.text())
                 self.wminVisits = str(self.minVisits.text())
                 addQuery.append("usernames >= '{}'".format(self.wminVisits))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
                 count2 += 1
@@ -1024,7 +1024,7 @@ class MainWindow(QWidget):
 
         self.table.setModel(self.model)
         self.table.resizeColumnsToContents()
-        
+
 
 
 
@@ -1110,7 +1110,7 @@ class MainWindow(QWidget):
             addQuery.append("exhibit_name = '{}'".format(self.exhibit))
         if len(self.name) != 0:
             addQuery.append("lower(SHOWS.show_name) LIKE '%{}%'".format(self.name.lower()))
-        
+
         self.date = str(self.calendar.date())
         if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
             self.date = ""
@@ -1136,7 +1136,7 @@ class MainWindow(QWidget):
                 self.day = self.day[1:]
 
             self.date = ""
-            self.date = self.year + "-" + self.month + "-" + self.day 
+            self.date = self.year + "-" + self.month + "-" + self.day
             addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
 
         fullQuery = "SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = '{}'".format(self.my_user[1])
@@ -1285,7 +1285,7 @@ class MainWindow(QWidget):
                 self.day = self.day[1:]
 
             self.date = ""
-            self.date = self.year + "-" + self.month + "-" + self.day 
+            self.date = self.year + "-" + self.month + "-" + self.day
             addQuery.append("DATE(datetime) = '{}'".format(self.date))
         if len(addQuery) > 0:
             fullQuery += " WHERE "
@@ -1337,7 +1337,7 @@ class MainWindow(QWidget):
                 self.c.execute("INSERT INTO SHOW_VISITS VALUES (%s,%s,%s)",(str(show_name), str(show_date), str(visitor)))
                 messagebox.showwarning("Thank you!", "Your visit has been logged.")
 
-            
+
 
 
     def visitor_search_animals(self):
@@ -1373,7 +1373,7 @@ class MainWindow(QWidget):
         exDrop = [""]
         for i in result:
             exDrop.append(i[0])
-       
+
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -1443,7 +1443,7 @@ class MainWindow(QWidget):
                 int(self.wmaxAge.text())
                 self.maxAge = str(self.wmaxAge.text())
                 addQuery.append("age <= '{}'".format(self.maxAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
                 count2 += 1
@@ -1452,7 +1452,7 @@ class MainWindow(QWidget):
                 int(self.wminAge.text())
                 self.minAge = str(self.wminAge.text())
                 addQuery.append("age >= '{}'".format(self.minAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
                 count2 += 1
@@ -1522,7 +1522,7 @@ class MainWindow(QWidget):
         self.c.execute("SELECT distinct(exhibit_name) FROM EXHIBITS")
 #exhibit drop down menu contents
         result = self.c.fetchall()
-   
+
         exDrop = ["","Birds","Pacific","Mountainous","Jungle","Sahara"]
         self.exhibitDrop.addItems(exDrop)
 
@@ -1541,7 +1541,7 @@ class MainWindow(QWidget):
 #         exDrop = [""]
 #         for i in result:
 #             exDrop.append(i[0])
-#         
+#
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -1617,7 +1617,7 @@ class MainWindow(QWidget):
                 int(self.wmaxAge.text())
                 self.maxAge = str(self.wmaxAge.text())
                 addQuery.append("age <= '{}'".format(self.maxAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
                 count2 += 1
@@ -1626,7 +1626,7 @@ class MainWindow(QWidget):
                 int(self.wminAge.text())
                 self.minAge = str(self.wminAge.text())
                 addQuery.append("age >= '{}'".format(self.minAge))
-                count += 1 
+                count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
                 count2 += 1
@@ -1724,7 +1724,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-       
+
             self.notesModel.appendRow(row)
 
         logNotesButton.clicked.connect(self.add_ac_note)
@@ -1795,7 +1795,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-             
+
             self.model.appendRow(row)
 
         self.exhibitDrop.addItems(exDrop)
@@ -1837,7 +1837,7 @@ class MainWindow(QWidget):
 
 
         for index in sorted(show):
-            
+
             self.model.removeRow(index.row())
             break
         self.table.setModel(self.model)
@@ -1914,7 +1914,7 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.RemoveAnimal,10,4)
 
         self.RemoveAnimal.clicked.connect(self.remove_animals)
-        self.search.clicked.connect(self.search_animals_button) 
+        self.search.clicked.connect(self.search_animals_button)
 #found in line 1025, written after visitor_search_animals function
         self.view_animals = QDialog()
         self.view_animals.setLayout(SAlayout)
@@ -1935,7 +1935,7 @@ class MainWindow(QWidget):
 #deletes item selected
         for index in sorted(animal):
             self.model.removeRow(index.row())
-            break 
+            break
         self.table.setModel(self.model)
 
     def staff_view_shows(self):
@@ -2020,7 +2020,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-        
+
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
@@ -2097,7 +2097,7 @@ class MainWindow(QWidget):
             pass
         else:
             messagebox.showwarning("Error", printstr)
-         
+
 
     def search_shows(self):
         self.setWindowTitle('Shows')
@@ -2139,7 +2139,7 @@ class MainWindow(QWidget):
                 item = QStandardItem(str(j)) #has to be converted to string in order to work
                 item.setEditable(False)
                 row.append(item)
-               
+
             self.model.appendRow(row)
 
         self.exhibitDrop.addItems(exDrop)
@@ -2175,42 +2175,42 @@ class MainWindow(QWidget):
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("SELECT password FROM USERS AS U WHERE U.username=%s",(user))
-        passhash = self.c.fetchone()[0]
-        if (passhash != None):
-            print(passhash)
+        passhashtuple = self.c.fetchone()
+
+        if (passhashtuple != None):
+            passhash = passhashtuple[0]
             self.db = self.Connect()
             self.c = self.db.cursor()
             if pbkdf2_sha256.verify(pswd, passhash):
                 self.c.execute("SELECT * FROM USERS AS U WHERE U.username=%s",(user))
                 self.my_user = self.c.fetchone()
+                if (self.my_user[3] == 'visitor'):
+                    self.visitor_functionality()
+                    self.logged_in = True
+                    self.password_line_edit.clear()
+                    self.user_line_edit.clear()
+                    self.user_line_edit.setFocus()
+                elif (self.my_user[3] == 'admin'):
+                    self.admin_functionality()
+                    self.logged_in = True
+                    self.password_line_edit.clear()
+                    self.user_line_edit.clear()
+                    self.user_line_edit.setFocus()
+                elif (self.my_user[3] == 'staff'):
+                    self.staff_functionality()
+                    self.logged_in = True
+                    self.password_line_edit.clear()
+                    self.user_line_edit.clear()
+                    self.user_line_edit.setFocus()
+                else:
+                    messagebox.showwarning("Error", "Unrecognized account type.\nCheck database.")
             else:
                 self.my_user = None
         else:
-            self.my_user = None
-        if (self.my_user == None):
             messagebox.showwarning("Error", "Username or password incorrect. \n Please try again.")
             self.try_again()
 
-        elif (self.my_user[3] == 'visitor'):
-            self.visitor_functionality()
-            self.logged_in = True
-            self.password_line_edit.clear()
-            self.user_line_edit.clear()
-            self.user_line_edit.setFocus()
-        elif (self.my_user[3] == 'admin'):
-            self.admin_functionality()
-            self.logged_in = True
-            self.password_line_edit.clear()
-            self.user_line_edit.clear()
-            self.user_line_edit.setFocus()
-        elif (self.my_user[3] == 'staff'):
-            self.staff_functionality()
-            self.logged_in = True
-            self.password_line_edit.clear()
-            self.user_line_edit.clear()
-            self.user_line_edit.setFocus()
-        else:
-            messagebox.showwarning("Error", "Unrecognized account type.\nCheck database.")
+
 
 
     def keyPressEvent(self, event):
@@ -2290,7 +2290,7 @@ class MainWindow(QWidget):
             count += 1
 
         if self.confirmpswd != self.pswd:
-           
+
             printstr += "Password must match Confirm Password\n"
             count+=1
 
@@ -2342,12 +2342,12 @@ class MainWindow(QWidget):
 
 #conducting checks for registration information for visitors
         if len(self.pswd) < 8:
-           
+
             printstr += "Password needs to be more than 8 characters\n"
             count += 1
 
         if self.confirmpswd != self.pswd:
-    
+
             printstr += "Password must match Confirm Password\n"
             count+=1
 
@@ -2406,4 +2406,3 @@ if __name__=='__main__':
     main = MainWindow()
     main.show()
     sys.exit(app.exec_())
-     
