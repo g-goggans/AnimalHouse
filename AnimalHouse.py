@@ -493,16 +493,19 @@ class MainWindow(QWidget):
             count+=1
         if len(self.age) < 1:
             printstr += "- Age of animal is not entered\n"
-        if (type(self.age) != int):
-            printstr += "- Age of animals must be an integer\n"
-            count += 1
+        else:
+            try:
+                self.age = int(self.age)
+            except:
+                printstr += "- Age of animals must be an integer\n"
+                count += 1
         if len(self.exhibit) < 1:
             printstr += "- Select a valid exhibit\n"
             count += 1
         if len(self.type) < 1:
             printstr += "- Select a valid type\n"
             count += 1
-        if (len(self.name) > 0) and (len(self.species) > 0) and (len(self.age) > 0) and (len(self.exhibit) > 0) and (len(self.type) > 0):
+        if (len(self.name) > 0) and (len(self.species) > 0) and (len(str(self.age)) > 0) and (len(self.exhibit) > 0) and (len(self.type) > 0):
             self.c.execute("SELECT name, species FROM ANIMALS WHERE name = (%s) and species = (%s) and age = (%s)", (self.name,self.species,self.age))
             animalMatch = self.c.fetchall()
             if len(animalMatch) != 0:
@@ -1001,7 +1004,7 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}' GROUP BY(exhibit_name)".format(self.my_user[1]))
+        self.c.execute("SELECT EXHIBIT_VISITS.exhibit_name, datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = '{}' AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name".format(self.my_user[1]))
         result = self.c.fetchall()
 
 
@@ -1064,9 +1067,9 @@ class MainWindow(QWidget):
         elif sort_by == "Exhibit Name":
             sort_by = "exhibit_name"
         else:
-            sort_by = "COUNT(username)"
+            sort_by = "view1.c"
         self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = (%s) GROUP BY(exhibit_name) ORDER BY " + sort_by, (self.my_user[1]))
+        self.c.execute("SELECT EXHIBIT_VISITS.exhibit_name, datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = %s AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name ORDER BY " + sort_by, (self.my_user[1]))
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -1081,12 +1084,13 @@ class MainWindow(QWidget):
 
     def visitor_exhibit_history_search(self):
         addQuery =[]
+        addQuery2 = []
         count = 0
         count2 = 0
         errorstr = ""
         if len(str(self.wname.text())) > 0:
             self.name = str(self.wname.text())
-            addQuery.append("exhibit_name LIKE '%{}%'".format(self.name))
+            addQuery.append("EXHIBIT_VISITS.exhibit_name LIKE '%{}%'".format(self.name))
         self.date = str(self.calendar.date())
         if self.date == "PyQt5.QtCore.QDate(2010, 1, 1)":
             self.date = ""
@@ -1113,12 +1117,12 @@ class MainWindow(QWidget):
 
             self.date = ""
             self.date = self.year + "-" + self.month + "-" + self.day
-            addQuery.append("DATE(datetime) = '{}'".format(self.date))
+            addQuery.append("DATE(EXHIBIT_VISITS.datetime) = '{}'".format(self.date))
         if len(self.maxVisits.text()) > 0:
             try:
                 int(self.maxVisits.text())
                 self.wmaxVisits = str(self.maxVisits.text())
-                addQuery.append("COUNT(username) <= '{}'".format(self.wmaxVisits))
+                addQuery2.append("c <= '{}'".format(self.wmaxVisits))
                 count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
@@ -1127,7 +1131,7 @@ class MainWindow(QWidget):
             try:
                 int(self.minVisits.text())
                 self.wminVisits = str(self.minVisits.text())
-                addQuery.append("COUNT(username) >= '{}'".format(self.wminVisits))
+                addQuery2.append("c >= '{}'".format(self.wminVisits))
                 count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
@@ -1138,26 +1142,26 @@ class MainWindow(QWidget):
         if (count2 > 0):
             messagebox.showwarning("Error", errorstr)
 
-        fullQuery = "SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = '{}'".format(self.my_user[1])
+        fullQuery = "SELECT EXHIBIT_VISITS.exhibit_name,datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = '{}' AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name".format(self.my_user[1])
         if len(addQuery) > 0:
             fullQuery += " and "
             for i in range(0,len(addQuery)-1):
                 fullQuery = fullQuery + addQuery[i] + " and "
             fullQuery = fullQuery + addQuery[len(addQuery)-1] + " "
-        fullQuery += "GROUP BY(exhibit_name)"
+        # fullQuery += "GROUP BY exhibit_name"
+        if len(addQuery2) > 0:
+            fullQuery += " HAVING "
+            for i in range(0,len(addQuery2)-1):
+                fullQuery = fullQuery + addQuery2[i] + " and "
+            fullQuery = fullQuery + addQuery2[len(addQuery)-1] + " "
 
         self.db = self.Connect()
         self.c = self.db.cursor()
-        print(fullQuery)
         self.c.execute(fullQuery)
         result = self.c.fetchall()
-
         self.model.clear()
         self.table.setModel(self.model)
 
-        self.c = self.db.cursor()
-        self.c.execute(fullQuery)
-        result = self.c.fetchall()
         for i in result:
             row = []
 #converts item to list from tuple
@@ -1251,7 +1255,7 @@ class MainWindow(QWidget):
         self.openPages.append(self.show_history)
 
 
-        self.table.horizontalHeader().sectionClicked.connect(self.vsh_column_sort)
+        self.historyTable.horizontalHeader().sectionClicked.connect(self.vsh_column_sort)
 
 
 
