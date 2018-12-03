@@ -1260,8 +1260,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Exhibit", "Date"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
@@ -1286,6 +1286,7 @@ class MainWindow(QWidget):
 
         self.exhibitDrop.addItems(exDrop)
         self.table.setModel(self.model)
+        self.table.horizontalHeader().sectionClicked.connect(self.vss_column_sort)
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
@@ -1314,6 +1315,32 @@ class MainWindow(QWidget):
             page.close()
         self.search_shows.setWindowTitle('Search Shows')
         self.openPages.append(self.search_shows)
+
+    def vss_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
+
+
+
+        
 
 #DO NOT CHANGE THE NAME OF THIS METHOD
 #STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR SHOWS
