@@ -17,9 +17,7 @@
 #     - does not exit out after show is successfully added
 ############################
 # NONWORKING FUNCTIONALITIES
-# - a lot of the .close() implmentations for most functionalities
-#     - count By > and < does not work with SQL statement
-# - password hashing
+# admin remove show
 #############################
 
 import sys
@@ -395,18 +393,20 @@ class MainWindow(QWidget):
 
     def remove_staff(self):
         staff = self.table.selectionModel().selectedIndexes()
-        name = str(staff[0].data())
-        email = str(staff[1].data())
-        self.db = self.Connect()
-        self.c = self.db.cursor()
+        if len(staff) == 0:
+            messagebox.showwarning("Error", "Please select a staff to remove.")
+        else:
+            name = str(staff[0].data())
+            email = str(staff[1].data())
+            self.db = self.Connect()
+            self.c = self.db.cursor()
 
-        self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
+            self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
 
-#deletes item selected
-        for index in sorted(staff):
-            self.model.removeRow(index.row())
-            break
-        self.table.setModel(self.model)
+            for index in sorted(staff):
+                self.model.removeRow(index.row())
+                break
+            self.table.setModel(self.model)
 
 
     def admin_add_animals(self):
@@ -582,17 +582,19 @@ class MainWindow(QWidget):
 
     def remove_visitor(self):
         visitor = self.table.selectionModel().selectedIndexes()
-        name = str(visitor[0].data())
-        email = str(visitor[1].data())
-        self.db = self.Connect()
-        self.c = self.db.cursor()
+        if len(visitor) == 0:
+            messagebox.showwarning("Error", "Please select a visitor to remove")
+        else:
+            name = str(visitor[0].data())
+            email = str(visitor[1].data())
+            self.db = self.Connect()
+            self.c = self.db.cursor()
 
-        self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
-#deletes item selected
-        for index in sorted(visitor):
-            self.model.removeRow(index.row())
-            break
-        self.table.setModel(self.model)
+            self.c.execute("DELETE FROM USERS WHERE USERS.username = (%s)",name)
+            for index in sorted(visitor):
+                self.model.removeRow(index.row())
+                break
+            self.table.setModel(self.model)
 
 
     def staff_functionality(self):
@@ -725,8 +727,8 @@ class MainWindow(QWidget):
         numAlbl = QLabel("Num Animals: " + str(self.e_num_animals))
         waterlbl = QLabel("Water Feature: " + str(self.waterornotwaterthatisthequestion))
         logNotesButton = QPushButton("Log Visit")
-
-
+        self.table.setSelectionBehavior(QTableView.SelectRows)
+        self.table.setSelectionMode(QTableView.SingleSelection)
 
         self.animalTable = QTableView()
         self.animalModel = QStandardItemModel()
@@ -766,8 +768,66 @@ class MainWindow(QWidget):
         self.log_exhibit.setWindowTitle('Log Exhibit')
         self.openPages.append(self.log_exhibit)
 
+
         logNotesButton.clicked.connect(self.log_note)
         self.back.clicked.connect(self.back_out_of_exhibit_detail)
+        self.animalTable.setSelectionBehavior(QTableView.SelectRows)
+        self.animalTable.setSelectionMode(QTableView.SingleSelection)
+        self.animalTable.doubleClicked.connect(self.visitor_animal_view)
+
+    def visitor_animal_view(self):
+        animal = self.animalTable.selectionModel().selectedIndexes()
+        aname = animal[0].data()
+        aspec = animal[1].data()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT * FROM ANIMALS WHERE name = (%s) AND species = (%s)", (aname, aspec))
+        animal_info = self.c.fetchone()
+
+        SAlayout = QGridLayout()
+
+        name = QLabel("Name: ")
+        wname = QLabel(str(animal_info[0]))
+        spec = QLabel("Species: ")
+        wspecies = QLabel(str(animal_info[1]))
+        self.name = QLabel("Name: ")
+        wtype = QLabel(str(animal_info[2]))
+        self.name = QLabel("Name: ")
+        wage = QLabel(str(animal_info[3]))
+        self.name = QLabel("Name: ")
+        wexhibit = QLabel(str(animal_info[4]))
+        self.wname = QLineEdit()
+        self.search = QPushButton("search")
+
+        self.age = QLabel("Age: ")
+        self.minAge = QLabel("min")
+        self.wminAge = QLineEdit()
+        self.maxAge = QLabel("max")
+        self.wmaxAge = QLineEdit()
+
+        self.Species = QLabel("Species: ")
+        self.wSpecies = QLineEdit()
+
+        self.Type = QLabel("Type: ")
+        self.typeDrop = QComboBox()
+        typDrop = ["","Bird","Fish","Mammal","Amphibian","Reptile","Invertebrate"]
+        self.typeDrop.addItems(typDrop)
+
+        self.exhibit = QLabel("Exhibit: ")
+        self.exhibitDrop = QComboBox()
+        self.db = self.Connect()
+        self.c = self.db.cursor()
+        self.c.execute("SELECT distinct(exhibit_name) FROM EXHIBITS")
+#exhibit drop down menu contents
+        result = self.c.fetchall()
+
+        exDrop = ["","Birds","Pacific","Mountainous","Jungle","Sahara"]
+        self.exhibitDrop.addItems(exDrop)
+
+        self.table = QTableView()
+        self.model = QStandardItemModel()
+        self.model.setColumnCount(3)
+        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(headerNames)
 
     def back_out_of_exhibit_detail(self):
         self.log_exhibit.close()
@@ -864,7 +924,7 @@ class MainWindow(QWidget):
                     row.append(item)
                 self.model.appendRow(row)
 
-            headerNames = ["Exhibit_Name", "Water", "Number of Animals", "Size"]
+            headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
             self.model.setHorizontalHeaderLabels(headerNames)
             self.table.setModel(self.model)
         else:
@@ -1554,16 +1614,6 @@ class MainWindow(QWidget):
         headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
         self.model.setHorizontalHeaderLabels(headerNames)
 
-#         self.db = self.Connect()
-#         self.c = self.db.cursor()
-#         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
-
-# #exhibit drop down menu contents
-#         result = self.c.fetchall()
-#         exDrop = [""]
-#         for i in result:
-#             exDrop.append(i[0])
-#
 
 #fill dedfault table
         self.c = self.db.cursor()
@@ -1849,19 +1899,22 @@ class MainWindow(QWidget):
     def remove_show(self):
 
         show = self.table.selectionModel().selectedIndexes()
-        name = str(show[0].data())
-        exhibit = str(show[1].data())
-        time = str(show[2].data())
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("DELETE FROM SHOWS WHERE show_name = (%s) and datetime = (%s) and exhibit_name = (%s)", (name,time,exhibit))
+        if len(show) == 0:
+            messagebox.showwarning("Error", "Please select a show to remove.")
+        else:
+            name = str(show[0].data())
+            exhibit = str(show[1].data())
+            time = str(show[2].data())
+            self.db = self.Connect()
+            self.c = self.db.cursor()
+            self.c.execute("DELETE FROM SHOWS WHERE show_name = (%s) and datetime = (%s) and exhibit_name = (%s)", (name,time,exhibit))
 
 
-        for index in sorted(show):
+            for index in sorted(show):
 
-            self.model.removeRow(index.row())
-            break
-        self.table.setModel(self.model)
+                self.model.removeRow(index.row())
+                break
+            self.table.setModel(self.model)
 
     def admin_view_animals(self):
         SAlayout = QGridLayout()
@@ -1947,17 +2000,19 @@ class MainWindow(QWidget):
 
     def remove_animals(self):
         animal = self.table.selectionModel().selectedIndexes()
-        name = str(animal[0].data())
-        species = str(animal[1].data())
-        self.db = self.Connect()
-        self.c = self.db.cursor()
+        if len(animal) == 0:
+            messagebox.showwarning("Error", " Please select an animal to remove.")
+        else:
+            name = str(animal[0].data())
+            species = str(animal[1].data())
+            self.db = self.Connect()
+            self.c = self.db.cursor()
 
-        self.c.execute("DELETE FROM ANIMALS WHERE name = (%s) and species = (%s)", (name,species))
-#deletes item selected
-        for index in sorted(animal):
-            self.model.removeRow(index.row())
-            break
-        self.table.setModel(self.model)
+            self.c.execute("DELETE FROM ANIMALS WHERE name = (%s) and species = (%s)", (name,species))
+            for index in sorted(animal):
+                self.model.removeRow(index.row())
+                break
+            self.table.setModel(self.model)
 
     def staff_view_shows(self):
 
