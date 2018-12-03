@@ -356,8 +356,8 @@ class MainWindow(QWidget):
 
         self.model = QStandardItemModel()
         self.model.setColumnCount(2)
-        headerNames = ["Username", "Email"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Username", "Email"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -383,6 +383,7 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.RemoveStaff,10,4)
 
         self.RemoveStaff.clicked.connect(self.remove_staff)
+        self.table.horizontalHeader().sectionClicked.connect(self.avs_column_sort)
 
         self.view_staff = QDialog()
         self.view_staff.setLayout(SAlayout)
@@ -542,8 +543,8 @@ class MainWindow(QWidget):
         viewVisitors = QLabel()
         viewVisitors.setText("Staff - View Visitors")
 
-        headerNames = ["Username", "Email"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Username", "Email"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -572,6 +573,7 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.RemoveVisitor,10,4)
 
         self.RemoveVisitor.clicked.connect(self.remove_visitor)
+        self.table.horizontalHeader().sectionClicked.connect(self.avv_column_sort)
 
         self.view_visitors = QDialog()
         self.view_visitors.setLayout(SAlayout)
@@ -580,6 +582,46 @@ class MainWindow(QWidget):
             page.close()
         self.view_visitors.setWindowTitle('View Visitors')
         self.openPages.append(self.view_visitors)
+
+    def avv_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Username":
+            sort_by = "username"
+        else:
+            sort_by = "email"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username,email from USERS Where user_type = 'visitor' ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
+
+    def avs_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Username":
+            sort_by = "username"
+        else:
+            sort_by = "email"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username,email from USERS Where user_type = 'staff' ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def remove_visitor(self):
         visitor = self.table.selectionModel().selectedIndexes()
@@ -658,8 +700,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(4)
-        headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         for i in result:
             row = []
@@ -705,6 +747,8 @@ class MainWindow(QWidget):
         self.search.clicked.connect(self.visitor_exhibit_search_button)
         self.back.clicked.connect(self.bac_button)
         self.table.doubleClicked.connect(self.exhibit_details)
+        self.table.horizontalHeader().sectionClicked.connect(self.vse_column_sort)
+
 
     def bac_button(self):
         for pages in self.openPages:
@@ -957,8 +1001,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Exhibit Name", "Time", "Number of Visits"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Exhibit Name", "Time", "Number of Visits"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         for i in result:
             row = []
@@ -989,6 +1033,8 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.visitor_exhibit_history_search)
         self.back.clicked.connect(self.bac_button)
+        self.table.horizontalHeader().sectionClicked.connect(self.vseh_column_sort)
+
 
         self.exhibit_history = QDialog()
         self.exhibit_history.setLayout(SSlayout)
@@ -997,6 +1043,28 @@ class MainWindow(QWidget):
             page.close()
         self.exhibit_history.setWindowTitle('Exhibit History')
         self.openPages.append(self.exhibit_history)
+
+    def vseh_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Time":
+            sort_by = "datetime"
+        elif sort_by == "Exhibit Name":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "COUNT(username)"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = (%s) GROUP BY(exhibit_name) ORDER BY " + sort_by, (self.my_user[1]))
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def visitor_exhibit_history_search(self):
         addQuery =[]
@@ -1112,8 +1180,8 @@ class MainWindow(QWidget):
         self.historyTable = QTableView()
         self.historyModel = QStandardItemModel()
         self.historyModel.setColumnCount(3)
-        headerNames = ["Name", "Date", "Exhibit"]
-        self.historyModel.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Date", "Exhibit"]
+        self.historyModel.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1157,6 +1225,7 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.view_show_history_search)
         self.back.clicked.connect(self.bac_button)
+        self.historyTable.horizontalHeader().sectionClicked.connect(self.vsh_column_sort)
 
         self.show_history = QDialog()
         self.show_history.setLayout(SAlayout)
@@ -1165,6 +1234,28 @@ class MainWindow(QWidget):
             page.close()
         self.show_history.setWindowTitle('Show History')
         self.openPages.append(self.show_history)
+
+    def vsh_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "SHOWS.show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "SHOWS.datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = (%s) ORDER BY " + sort_by, (self.my_user[1]))
+        result = self.c.fetchall()
+        self.historyModel = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.historyModel.appendRow(row)
+        self.historyTable.setModel(self.historyModel)
+        self.historyModel.setHorizontalHeaderLabels(self.headerNames)
 
     def view_show_history_search(self):
         self.name = str(self.wname.text())
@@ -1457,8 +1548,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1509,6 +1600,7 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.search_animals_button)
         self.back.clicked.connect(self.bac_button)
+        self.table.horizontalHeader().sectionClicked.connect(self.vsa_column_sort)
 
         self.search_animals = QDialog()
         self.search_animals.setLayout(SAlayout)
@@ -1517,6 +1609,32 @@ class MainWindow(QWidget):
             page.close()
         self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
+
+    def vsa_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "name"
+        elif sort_by == "Species":
+            sort_by = "species"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        elif sort_by == "Age":
+            sort_by = "age"
+        else:
+            sort_by = "type"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 #DO NOT CHANGE THE NAME OF THIS METHOD
 #STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR ANIMALS
@@ -1626,8 +1744,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 
 #fill dedfault table
@@ -1670,6 +1788,7 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.search,2,4)
 
         self.search.clicked.connect(self.staff_search_animals_button)
+        self.table.horizontalHeader().sectionClicked.connect(self.ssa_column_sort)
 
 
         self.search_animals = QDialog()
@@ -1679,6 +1798,35 @@ class MainWindow(QWidget):
             page.close()
         self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
+
+
+    def ssa_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        elif sort_by == "Species":
+            sort_by = "species"
+        elif sort_by == "Age":
+            sort_by = "age"
+        elif sort_by == "Type":
+            sort_by = "type"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:
+                item = QStandardItem(str(j))
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def staff_search_animals_button(self):
         errorstr = ""
@@ -1857,8 +2005,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Exhibit", "Date"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1901,6 +2049,7 @@ class MainWindow(QWidget):
 
         self.RemoveShow.clicked.connect(self.remove_show)
         self.search.clicked.connect(self.search_shows_button)
+        self.table.horizontalHeader().sectionClicked.connect(self.vss_column_sort)
 
         self.view_shows = QDialog()
         self.view_shows.setLayout(SSlayout)
@@ -1909,6 +2058,28 @@ class MainWindow(QWidget):
         for page in self.openPages:
             page.close()
         self.openPages.append(self.view_shows)
+
+    def avshow_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def remove_show(self):
 
@@ -1954,8 +2125,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -2003,7 +2174,8 @@ class MainWindow(QWidget):
 
         self.RemoveAnimal.clicked.connect(self.remove_animals)
         self.search.clicked.connect(self.search_animals_button)
-#found in line 1025, written after visitor_search_animals function
+        self.table.horizontalHeader().sectionClicked.connect(self.ava_column_sort)
+#found in line 1025, written after visitor_search_animals
         self.view_animals = QDialog()
         self.view_animals.setLayout(SAlayout)
         self.view_animals.setWindowTitle('View Animals')
@@ -2011,6 +2183,32 @@ class MainWindow(QWidget):
         for page in self.openPages:
             page.close()
         self.openPages.append(self.view_animals)
+
+    def ava_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "name"
+        elif sort_by == "Species":
+            sort_by = "species"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        elif sort_by == "Age":
+            sort_by = "age"
+        else:
+            sort_by = "type"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def remove_animals(self):
         animal = self.table.selectionModel().selectedIndexes()
@@ -2039,8 +2237,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Time", "Exhibit"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Time", "Exhibit"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -2055,6 +2253,7 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
+        self.table.horizontalHeader().sectionClicked.connect(self.svs_column_sort)
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
@@ -2070,6 +2269,29 @@ class MainWindow(QWidget):
         for page in self.openPages:
             page.close()
         self.openPages.append(self.view_shows)
+
+
+    def svs_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT show_name, datetime, exhibit_name FROM SHOWS WHERE SHOWS.username=%s ORDER BY " + sort_by, (self.my_user[1]))
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:
+                item = QStandardItem(str(j))
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 
     def search_exhibits(self):
@@ -2101,8 +2323,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(4)
-        headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         for i in result:
             row = []
@@ -2145,6 +2367,30 @@ class MainWindow(QWidget):
             page.close()
 
         self.search.clicked.connect(self.exhibitSearch)
+
+    def vse_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Exhibit Name":
+            sort_by = "exhibit_name"
+        elif sort_by == "Water":
+            sort_by = "water"
+        elif sort_by == "Number of Animals":
+            sort_by = "number_of_animals"
+        else:
+            sort_by = "size"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT exhibit_name, water, number_of_animals, size FROM EXHIBITS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def exhibitSearch(ds):
         self.animalMin = str(self.wanimalMin.text())
