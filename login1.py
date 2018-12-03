@@ -1587,6 +1587,7 @@ class MainWindow(QWidget):
 
 
     def visitor_search_animals(self):
+        self.fullQuery = None
         SAlayout = QGridLayout()
 
         self.title1 = QLabel("Atlanta Zoo")
@@ -1686,7 +1687,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "type"
         self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        if self.fullQuery == None:
+            self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:

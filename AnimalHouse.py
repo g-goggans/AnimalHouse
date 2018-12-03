@@ -678,6 +678,7 @@ class MainWindow(QWidget):
 
 
     def visitor_search_exhibits(self):
+        self.fullQuery = None
         SElayout = QGridLayout()
         self.title1 = QLabel("Atalnta Zoo")
         self.search = QPushButton("search")
@@ -882,6 +883,7 @@ class MainWindow(QWidget):
         messagebox.showwarning("Thank you!", "Your visit has been logged.")
 
     def visitor_exhibit_search_button(self):
+        self.fullQuery = None
         self.animalMin = str(self.wanimalMin.text())
         self.animalMax = str(self.wanimalMax.text())
         self.sizeMin = str(self.wsizeMin.text())
@@ -954,6 +956,7 @@ class MainWindow(QWidget):
             self.table.setModel(self.model)
 
             self.c = self.db.cursor()
+            self.fullQuery = fullQuery
             self.c.execute(fullQuery)
             result = self.c.fetchall()
             for i in result:
@@ -974,10 +977,9 @@ class MainWindow(QWidget):
 
 
     def Visitor_Exhibit_History(self):
+        self.fullQuery = None
         SSlayout = QGridLayout()
-
         self.search = QPushButton("search")
-
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.title1 = QLabel("Atlanta Zoo")
@@ -1069,7 +1071,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "view1.c"
         self.c = self.db.cursor()
-        self.c.execute("SELECT EXHIBIT_VISITS.exhibit_name, datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = %s AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name ORDER BY " + sort_by, (self.my_user[1]))
+        if self.fullQuery == None:
+            self.c.execute("SELECT EXHIBIT_VISITS.exhibit_name, datetime, c FROM EXHIBIT_VISITS JOIN view1 WHERE username = %s AND EXHIBIT_VISITS.exhibit_name = view1.exhibit_name ORDER BY " + sort_by, (self.my_user[1]))
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -1083,6 +1088,7 @@ class MainWindow(QWidget):
         self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def visitor_exhibit_history_search(self):
+        self.fullQuery = None
         addQuery =[]
         addQuery2 = []
         count = 0
@@ -1157,6 +1163,7 @@ class MainWindow(QWidget):
 
         self.db = self.Connect()
         self.c = self.db.cursor()
+        self.fullQuery = fullQuery
         self.c.execute(fullQuery)
         result = self.c.fetchall()
         self.model.clear()
@@ -1178,6 +1185,7 @@ class MainWindow(QWidget):
 
 
     def Visitor_Show_History(self):
+        self.fullQuery = None
         SSlayout = QGridLayout()
 
         self.search = QPushButton("search")
@@ -1268,7 +1276,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "SHOWS.datetime"
         self.c = self.db.cursor()
-        self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = (%s) ORDER BY " + sort_by, (self.my_user[1]))
+        if self.fullQuery == None:
+            self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = (%s) ORDER BY " + sort_by, (self.my_user[1]))
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.historyModel = QStandardItemModel()
         for i in result:
@@ -1282,6 +1293,7 @@ class MainWindow(QWidget):
         self.historyModel.setHorizontalHeaderLabels(self.headerNames)
 
     def view_show_history_search(self):
+        self.fullQuery = None
         self.name = str(self.wname.text())
         self.exhibit = str(self.exhibitDrop.currentText())
 
@@ -1335,6 +1347,7 @@ class MainWindow(QWidget):
         self.historyTable.setModel(self.historyModel)
 
         self.c = self.db.cursor()
+        self.fullQuery = fullQuery
         self.c.execute(fullQuery)
         result = self.c.fetchall()
         for i in result:
@@ -1352,6 +1365,7 @@ class MainWindow(QWidget):
         self.historyTable.setModel(self.historyModel)
 
     def visitor_search_shows(self):
+        self.fullQuery = None
         SSlayout = QGridLayout()
 
         self.title1 = QLabel("Atalnta Zoo")
@@ -1449,7 +1463,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "datetime"
         self.c = self.db.cursor()
-        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        if self.fullQuery == None:
+            self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -1473,6 +1490,7 @@ class MainWindow(QWidget):
 #DO NOT CHANGE THE NAME OF THIS METHOD
 #STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR SHOWS
     def search_shows_button(self):
+        self.fullQuery = None
         fullQuery = "SELECT show_name, exhibit_name, datetime FROM SHOWS"
         addQuery = []
         count = 0
@@ -1520,6 +1538,7 @@ class MainWindow(QWidget):
         self.model.clear()
         self.table.setModel(self.model)
 
+        self.fullQuery = fullQuery
         self.c = self.db.cursor()
         self.c.execute(fullQuery)
         result = self.c.fetchall()
@@ -1568,6 +1587,7 @@ class MainWindow(QWidget):
 
 
     def visitor_search_animals(self):
+        self.fullQuery = None
         SAlayout = QGridLayout()
 
         self.title1 = QLabel("Atlanta Zoo")
@@ -1667,7 +1687,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "type"
         self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        if self.fullQuery == None:
+            self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -1683,6 +1706,7 @@ class MainWindow(QWidget):
 #DO NOT CHANGE THE NAME OF THIS METHOD
 #STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR ANIMALS
     def search_animals_button(self):
+        self.fullQuery = None
         errorstr = ""
         count = 0
         count2 = 0
@@ -1735,6 +1759,7 @@ class MainWindow(QWidget):
         self.table.setModel(self.model)
 
         self.c = self.db.cursor()
+        self.fullQuery = fullQuery
         self.c.execute(fullQuery)
         result = self.c.fetchall()
         for i in result:
@@ -1753,6 +1778,7 @@ class MainWindow(QWidget):
 
 
     def staff_search_animals(self):
+        self.fullQuery = None
         SAlayout = QGridLayout()
         self.title1 = QLabel("Atlanta Zoo")
         self.back = QPushButton("Back")
@@ -1868,7 +1894,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "datetime"
         self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        if self.fullQuery == None:
+            self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -1937,6 +1966,7 @@ class MainWindow(QWidget):
         self.table.setModel(self.model)
 
         self.c = self.db.cursor()
+        self.fullQuery = fullQuery
         self.c.execute(fullQuery)
         result = self.c.fetchall()
         for i in result:
@@ -2042,6 +2072,7 @@ class MainWindow(QWidget):
 
 
     def admin_view_shows(self):
+        self.fullQuery = None
         SSlayout = QGridLayout()
         self.title1 = QLabel("Atlanta Zoo")
         self.search = QPushButton("Search")
@@ -2138,7 +2169,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "datetime"
         self.c = self.db.cursor()
-        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        if self.fullQuery == None:
+            self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -2173,6 +2207,7 @@ class MainWindow(QWidget):
             messagebox.showwarning("Show Removed", "The show has been removed.")
 
     def admin_view_animals(self):
+        self.fullQuery = None
         SAlayout = QGridLayout()
         self.title1 = QLabel("Atlanta Zoo")
         self.search = QPushButton("search")
@@ -2251,10 +2286,8 @@ class MainWindow(QWidget):
         self.search.clicked.connect(self.search_animals_button)
 
         self.back.clicked.connect(self.bac_button)
-#found in line 1025, written after visitor_search_animals function
 
         self.table.horizontalHeader().sectionClicked.connect(self.ava_column_sort)
-#found in line 1025, written after visitor_search_animals
 
         self.view_animals = QDialog()
         self.view_animals.setLayout(SAlayout)
@@ -2281,7 +2314,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "type"
         self.c = self.db.cursor()
-        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        if self.fullQuery == None:
+            self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        else:
+            self.c.execute(self.fullQuery + "Order BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -2495,7 +2531,10 @@ class MainWindow(QWidget):
         else:
             sort_by = "size"
         self.c = self.db.cursor()
-        self.c.execute("SELECT exhibit_name, water, number_of_animals, size FROM EXHIBITS ORDER BY " + sort_by)
+        if self.fullQuery == None:
+            self.c.execute("SELECT exhibit_name, water, number_of_animals, size FROM EXHIBITS ORDER BY " + sort_by)
+        else:
+            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
