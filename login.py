@@ -2268,11 +2268,11 @@ class MainWindow(QWidget):
                 else:
                     messagebox.showwarning("Error", "Unrecognized account type.\nCheck database.")
             else:
-                self.my_user = None
+                messagebox.showwarning("Error", "Username or password incorrect. \n Please try again.")
+                self.try_again()
         else:
             messagebox.showwarning("Error", "Username or password incorrect. \n Please try again.")
             self.try_again()
-
 
 
 
