@@ -1122,7 +1122,7 @@ class MainWindow(QWidget):
             try:
                 int(self.maxVisits.text())
                 self.wmaxVisits = str(self.maxVisits.text())
-                addQuery.append("usernames <= '{}'".format(self.wmaxVisits))
+                addQuery.append("username <= '{}'".format(self.wmaxVisits))
                 count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
@@ -1131,7 +1131,7 @@ class MainWindow(QWidget):
             try:
                 int(self.minVisits.text())
                 self.wminVisits = str(self.minVisits.text())
-                addQuery.append("usernames >= '{}'".format(self.wminVisits))
+                addQuery.append("username >= '{}'".format(self.wminVisits))
                 count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
