@@ -1897,7 +1897,7 @@ class MainWindow(QWidget):
         if self.fullQuery == None:
             self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
         else:
-            self.c.execute(self.fullQuery + "ORDER BY " + sort_by)
+            self.c.execute(self.fullQuery + " ORDER BY " + sort_by)
         result = self.c.fetchall()
         self.model = QStandardItemModel()
         for i in result:
@@ -1967,7 +1967,7 @@ class MainWindow(QWidget):
 
         self.c = self.db.cursor()
         self.fullQuery = fullQuery
-        self.c.execute(fullQuery)
+        self.c.execute(self.fullQuery)
         result = self.c.fetchall()
         for i in result:
             row = []
