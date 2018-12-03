@@ -74,6 +74,7 @@ class MainWindow(QWidget):
         self.register_button.setEnabled(True)
         self.login_button = QPushButton("Login")
         self.login_button.setEnabled(True)
+        self.login_button.setDefault(True)
 
         self.vbox = QVBoxLayout()
         userlbl = QLabel()
@@ -180,7 +181,7 @@ class MainWindow(QWidget):
 
     def admin_add_show(self):
         SAlayout = QGridLayout()
-
+        self.title1 = QLabel("Atlanta Zoo")
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.exhibit = QLabel("Exhibit: ")
@@ -193,6 +194,7 @@ class MainWindow(QWidget):
         self.hourDrop = QComboBox()
         self.minuteDrop = QComboBox()
         self.AMPMDrop = QComboBox()
+        self.back = QPushButton("Back")
 
         self.AddShow = QPushButton("Add Show")
 
@@ -228,6 +230,7 @@ class MainWindow(QWidget):
         SAlayout = QGridLayout()
         SAlayout.setColumnStretch(1,6)
         SAlayout.setRowStretch(1,10)
+        SAlayout.addWidget(self.title1,0,0)
         SAlayout.addWidget(self.name, 1,0)
         SAlayout.addWidget(self.wname,2,0)
         SAlayout.addWidget(self.exhibit,3,0)
@@ -241,8 +244,10 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.minuteDrop,12,1)
         SAlayout.addWidget(self.AMPMDrop,12,2)
         SAlayout.addWidget(self.AddShow,5,4)
+        SAlayout.addWidget(self.back,0,4)
 
         self.AddShow.clicked.connect(self.admin_add_show_button)
+        self.back.clicked.connect(self.bac_button)
 
         self.add_shows = QDialog()
         self.add_shows.setLayout(SAlayout)
@@ -347,16 +352,16 @@ class MainWindow(QWidget):
 
     def admin_view_staff(self):
         SAlayout = QGridLayout()
-
+        self.title1 = QLabel("Atlanta Zoo")
         self.RemoveStaff = QPushButton("Remove Staff Member")
         self.table = QTableView()
         self.table.setSelectionBehavior(QTableView.SelectRows)
         self.table.setSelectionMode(QTableView.SingleSelection)
-
+        self.back = QPushButton("Back")
         self.model = QStandardItemModel()
         self.model.setColumnCount(2)
-        headerNames = ["Username", "Email"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Username", "Email"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -374,14 +379,18 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
+        self.table.setColumnWidth(1,200)
 
         SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,8)
-        SAlayout.setRowStretch(1,4)
-        SAlayout.addWidget(self.table,6,0,4,4)
+        SAlayout.setColumnStretch(1,5)
+        SAlayout.setRowStretch(1,5)
+        SAlayout.addWidget(self.title1,0,0)
+        SAlayout.addWidget(self.table,6,0,3,9)
         SAlayout.addWidget(self.RemoveStaff,10,4)
+        SAlayout.addWidget(self.back,10,0)
 
         self.RemoveStaff.clicked.connect(self.remove_staff)
+        self.back.clicked.connect(self.bac_button)
 
         self.view_staff = QDialog()
         self.view_staff.setLayout(SAlayout)
@@ -390,6 +399,8 @@ class MainWindow(QWidget):
             page.close()
         self.view_staff.setWindowTitle('View Staff')
         self.openPages.append(self.view_staff)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.avs_column_sort)
 
     def remove_staff(self):
         staff = self.table.selectionModel().selectedIndexes()
@@ -411,7 +422,7 @@ class MainWindow(QWidget):
 
     def admin_add_animals(self):
         SAlayout = QGridLayout()
-
+        self.title1 = QLabel("Atlanta Zoo")
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.exhibit = QLabel("Exhibit: ")
@@ -423,6 +434,7 @@ class MainWindow(QWidget):
         self.Age = QLabel("Age: ")
         self.wAge = QLineEdit()
         self.AddAnimal = QPushButton("Add Animal")
+        self.back = QPushButton("Back")
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -450,6 +462,7 @@ class MainWindow(QWidget):
         SAlayout = QGridLayout()
         SAlayout.setColumnStretch(1,6)
         SAlayout.setRowStretch(1,10)
+        SAlayout.addWidget(self.title1,0,0)
         SAlayout.addWidget(self.name, 1,0)
         SAlayout.addWidget(self.wname,2,0)
         SAlayout.addWidget(self.exhibit,3,0)
@@ -461,6 +474,7 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.Age, 9,0)
         SAlayout.addWidget(self.wAge,10,0)
         SAlayout.addWidget(self.AddAnimal,5,1)
+        SAlayout.addWidget(self.back,10,1)
 
         self.add_animals = QDialog()
         self.add_animals.setLayout(SAlayout)
@@ -471,6 +485,7 @@ class MainWindow(QWidget):
         self.openPages.append(self.add_animals)
 
         self.AddAnimal.clicked.connect(self.admin_add_animal_button)
+        self.back.clicked.connect(self.bac_button)
 
     def admin_add_animal_button(self):
         self.name = str(self.wname.text())
@@ -535,14 +550,13 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(2)
+        self.back = QPushButton("Back")
 
         atlantaZoo = QLabel()
         atlantaZoo.setText("Atlanta Zoo")
-        viewVisitors = QLabel()
-        viewVisitors.setText("Staff - View Visitors")
 
-        headerNames = ["Username", "Email"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Username", "Email"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -561,16 +575,18 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
+        self.table.setColumnWidth(1,190)
 
         SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,8)
-        SAlayout.setRowStretch(1,4)
+        SAlayout.setColumnStretch(1,6)
+        SAlayout.setRowStretch(1,2)
         SAlayout.addWidget(atlantaZoo,0,0)
-        SAlayout.addWidget(viewVisitors,0,1)
-        SAlayout.addWidget(self.table,6,0,4,4)
-        SAlayout.addWidget(self.RemoveVisitor,10,4)
+        SAlayout.addWidget(self.table,6,0,3,12)
+        SAlayout.addWidget(self.RemoveVisitor,10,7)
+        SAlayout.addWidget(self.back,10,0)
 
         self.RemoveVisitor.clicked.connect(self.remove_visitor)
+        self.back.clicked.connect(self.bac_button)
 
         self.view_visitors = QDialog()
         self.view_visitors.setLayout(SAlayout)
@@ -579,6 +595,48 @@ class MainWindow(QWidget):
             page.close()
         self.view_visitors.setWindowTitle('View Visitors')
         self.openPages.append(self.view_visitors)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.avv_column_sort)
+
+    def avv_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Username":
+            sort_by = "username"
+        else:
+            sort_by = "email"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username,email from USERS Where user_type = 'visitor' ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
+
+    def avs_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Username":
+            sort_by = "username"
+        else:
+            sort_by = "email"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT username,email from USERS Where user_type = 'staff' ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def remove_visitor(self):
         visitor = self.table.selectionModel().selectedIndexes()
@@ -629,7 +687,7 @@ class MainWindow(QWidget):
 
     def visitor_search_exhibits(self):
         SElayout = QGridLayout()
-
+        self.title1 = QLabel("Atalnta Zoo")
         self.search = QPushButton("search")
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
@@ -657,8 +715,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(4)
-        headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         for i in result:
             row = []
@@ -669,12 +727,13 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
+        self.table.setColumnWidth(3,80)
 
         SElayout = QGridLayout()
         SElayout.setColumnStretch(1,3)
         SElayout.setRowStretch(1,3)
-
-        SElayout.addWidget(self.search,1,3)
+        SElayout.addWidget(self.title1,1,0)
+        SElayout.addWidget(self.search,7,2)
         SElayout.addWidget(self.name, 2,0)
         SElayout.addWidget(self.wname,2,1)
         SElayout.addWidget(self.NumAnimals, 4,0)
@@ -689,9 +748,9 @@ class MainWindow(QWidget):
         SElayout.addWidget(self.wsizeMax,6,2)
         SElayout.addWidget(self.Water, 7,0)
         SElayout.addWidget(self.waterDrop, 7,1)
-        SElayout.addWidget(self.back,7,3)
+        SElayout.addWidget(self.back,1,2)
 
-        SElayout.addWidget(self.table,8,0,4,4)
+        SElayout.addWidget(self.table,8,0,4,4.5)
 
         self.search_exhibits = QDialog()
         self.search_exhibits.setLayout(SElayout)
@@ -704,6 +763,8 @@ class MainWindow(QWidget):
         self.search.clicked.connect(self.visitor_exhibit_search_button)
         self.back.clicked.connect(self.bac_button)
         self.table.doubleClicked.connect(self.exhibit_details)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.vse_column_sort)
 
     def bac_button(self):
         for pages in self.openPages:
@@ -733,8 +794,8 @@ class MainWindow(QWidget):
         self.animalTable = QTableView()
         self.animalModel = QStandardItemModel()
         self.animalModel.setColumnCount(2)
-        headerNames = ["Name", "Species"]
-        self.animalModel.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species"]
+        self.animalModel.setHorizontalHeaderLabels(self.headerNames)
 
 
         self.c = self.db.cursor()
@@ -785,49 +846,36 @@ class MainWindow(QWidget):
 
         SAlayout = QGridLayout()
 
+        exit = QPushButton("Exit")
         name = QLabel("Name: ")
         wname = QLabel(str(animal_info[0]))
         spec = QLabel("Species: ")
-        wspecies = QLabel(str(animal_info[1]))
-        self.name = QLabel("Name: ")
+        wspec = QLabel(str(animal_info[1]))
+        typey = QLabel("Type: ")
         wtype = QLabel(str(animal_info[2]))
-        self.name = QLabel("Name: ")
+        age = QLabel("Age: ")
         wage = QLabel(str(animal_info[3]))
-        self.name = QLabel("Name: ")
+        exhibit = QLabel("Exhibit: ")
         wexhibit = QLabel(str(animal_info[4]))
-        self.wname = QLineEdit()
-        self.search = QPushButton("search")
 
-        self.age = QLabel("Age: ")
-        self.minAge = QLabel("min")
-        self.wminAge = QLineEdit()
-        self.maxAge = QLabel("max")
-        self.wmaxAge = QLineEdit()
+        SAlayout.addWidget(name,1,0)
+        SAlayout.addWidget(wname,1,1)
+        SAlayout.addWidget(spec,1,2)
+        SAlayout.addWidget(wspec,1,3)
+        SAlayout.addWidget(age,1,4)
+        SAlayout.addWidget(wage,1,5)
+        SAlayout.addWidget(name,1,0)
+        SAlayout.addWidget(typey,2,0)
+        SAlayout.addWidget(wtype,2,1)
+        SAlayout.addWidget(exhibit,2,2)
+        SAlayout.addWidget(wexhibit,2,3)
+        SAlayout.addWidget(exit,2,4)
 
-        self.Species = QLabel("Species: ")
-        self.wSpecies = QLineEdit()
-
-        self.Type = QLabel("Type: ")
-        self.typeDrop = QComboBox()
-        typDrop = ["","Bird","Fish","Mammal","Amphibian","Reptile","Invertebrate"]
-        self.typeDrop.addItems(typDrop)
-
-        self.exhibit = QLabel("Exhibit: ")
-        self.exhibitDrop = QComboBox()
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT distinct(exhibit_name) FROM EXHIBITS")
-#exhibit drop down menu contents
-        result = self.c.fetchall()
-
-        exDrop = ["","Birds","Pacific","Mountainous","Jungle","Sahara"]
-        self.exhibitDrop.addItems(exDrop)
-
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.animalView = QDialog()
+        self.animalView.setLayout(SAlayout)
+        self.animalView.setWindowTitle("Animal Details")
+        self.animalView.show()
+        exit.clicked.connect(self.animalView.close)
 
     def back_out_of_exhibit_detail(self):
         self.log_exhibit.close()
@@ -924,8 +972,8 @@ class MainWindow(QWidget):
                     row.append(item)
                 self.model.appendRow(row)
 
-            headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
-            self.model.setHorizontalHeaderLabels(headerNames)
+            self.headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
+            self.model.setHorizontalHeaderLabels(self.headerNames)
             self.table.setModel(self.model)
         else:
             messagebox.showwarning("Error", printstr)
@@ -938,7 +986,7 @@ class MainWindow(QWidget):
 
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
-
+        self.title1 = QLabel("Atlanta Zoo")
         self.date = QLabel("Date: ")
         self.calendar = QDateEdit() #this is wrong implementation
         self.calendar.setCalendarPopup(True)
@@ -969,8 +1017,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Exhibit Name", "Time", "Number of Visits"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Exhibit Name", "Time", "Number of Visits"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         for i in result:
             row = []
@@ -986,6 +1034,7 @@ class MainWindow(QWidget):
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
         SSlayout.setRowStretch(1,3)
+        SSlayout.addWidget(self.title1,0,0)
         SSlayout.addWidget(self.search,3,4)
         SSlayout.addWidget(self.name, 1,0)
         SSlayout.addWidget(self.wname,1,1)
@@ -1009,6 +1058,30 @@ class MainWindow(QWidget):
             page.close()
         self.exhibit_history.setWindowTitle('Exhibit History')
         self.openPages.append(self.exhibit_history)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.vseh_column_sort)
+
+    def vseh_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Time":
+            sort_by = "datetime"
+        elif sort_by == "Exhibit Name":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "COUNT(username)"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT exhibit_name, datetime, COUNT(username) FROM EXHIBIT_VISITS WHERE username = (%s) GROUP BY(exhibit_name) ORDER BY " + sort_by, (self.my_user[1]))
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def visitor_exhibit_history_search(self):
         addQuery =[]
@@ -1049,7 +1122,7 @@ class MainWindow(QWidget):
             try:
                 int(self.maxVisits.text())
                 self.wmaxVisits = str(self.maxVisits.text())
-                addQuery.append("usernames <= '{}'".format(self.wmaxVisits))
+                addQuery.append("username <= '{}'".format(self.wmaxVisits))
                 count += 1
             except:
                 errorstr += "- input for max age must be an integer\n"
@@ -1058,7 +1131,7 @@ class MainWindow(QWidget):
             try:
                 int(self.minVisits.text())
                 self.wminVisits = str(self.minVisits.text())
-                addQuery.append("usernames >= '{}'".format(self.wminVisits))
+                addQuery.append("username >= '{}'".format(self.wminVisits))
                 count += 1
             except:
                 errorstr += "- input for min age must be an integer\n"
@@ -1099,8 +1172,8 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
-        headerNames = ["Exhibit Name", "Time", "Number of Visits"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Exhibit Name", "Time", "Number of Visits"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 
     def Visitor_Show_History(self):
@@ -1124,8 +1197,8 @@ class MainWindow(QWidget):
         self.historyTable = QTableView()
         self.historyModel = QStandardItemModel()
         self.historyModel.setColumnCount(3)
-        headerNames = ["Name", "Date", "Exhibit"]
-        self.historyModel.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Date", "Exhibit"]
+        self.historyModel.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1153,6 +1226,7 @@ class MainWindow(QWidget):
             self.historyModel.appendRow(row)
 
         self.historyTable.setModel(self.historyModel)
+        self.historyTable.setColumnWidth(2,95)
 
         SAlayout = QGridLayout()
         SAlayout.setColumnStretch(1,6)
@@ -1177,6 +1251,30 @@ class MainWindow(QWidget):
             page.close()
         self.show_history.setWindowTitle('Show History')
         self.openPages.append(self.show_history)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.vsh_column_sort)
+
+    def vsh_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "SHOWS.show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "SHOWS.datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT SHOWS.show_name, SHOWS.datetime, exhibit_name FROM (SHOWS JOIN SHOW_VISITS on SHOWS.show_name = SHOW_VISITS.show_name) WHERE SHOW_VISITS.username = (%s) ORDER BY " + sort_by, (self.my_user[1]))
+        result = self.c.fetchall()
+        self.historyModel = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.historyModel.appendRow(row)
+        self.historyTable.setModel(self.historyModel)
+        self.historyModel.setHorizontalHeaderLabels(self.headerNames)
 
     def view_show_history_search(self):
         self.name = str(self.wname.text())
@@ -1244,8 +1342,8 @@ class MainWindow(QWidget):
                 row.append(item)
             self.historyModel.appendRow(row)
 
-        headerNames = ["Name", "Date", "Exhibit"]
-        self.historyModel.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Date", "Exhibit"]
+        self.historyModel.setHorizontalHeaderLabels(self.headerNames)
         self.historyTable.setModel(self.historyModel)
 
     def visitor_search_shows(self):
@@ -1272,8 +1370,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Exhibit", "Date"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
         self.db = self.Connect()
         self.c = self.db.cursor()
         self.c.execute("SELECT exhibit_name FROM EXHIBITS")
@@ -1298,6 +1396,7 @@ class MainWindow(QWidget):
 
         self.exhibitDrop.addItems(exDrop)
         self.table.setModel(self.model)
+        self.table.setColumnWidth(2,180)
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
@@ -1311,7 +1410,7 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.dateDrop,2,3)
         SSlayout.addWidget(self.exhibit,3,0)
         SSlayout.addWidget(self.exhibitDrop,3,1)
-        SSlayout.addWidget(self.table,4,0,4,4)
+        SSlayout.addWidget(self.table,4,0,4,6)
         SSlayout.addWidget(self.logVisit,8,3)
         SSlayout.addWidget(self.back,8,0)
 
@@ -1326,6 +1425,34 @@ class MainWindow(QWidget):
             page.close()
         self.search_shows.setWindowTitle('Search Shows')
         self.openPages.append(self.search_shows)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.vss_column_sort)
+
+    def vss_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
+
+
+
+
 
 #DO NOT CHANGE THE NAME OF THIS METHOD
 #STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR SHOWS
@@ -1391,9 +1518,10 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
 
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Exhibit", "Date"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
         self.table.setModel(self.model)
+        self.table.setColumnWidth(2,180)
 
     def log_shows_button(self):
         show = self.table.selectionModel().selectedIndexes()
@@ -1414,8 +1542,11 @@ class MainWindow(QWidget):
             if (row in newResults):
                 messagebox.showwarning("Error", "That show has already been logged")
             else:
-                self.c.execute("INSERT INTO SHOW_VISITS VALUES (%s,%s,%s)",(str(show_name), str(show_date), str(visitor)))
-                messagebox.showwarning("Thank you!", "Your visit has been logged.")
+                if (datetime.strptime(show_date, "%Y-%m-%d %H:%M:%S") <= datetime.now()):
+                    messagebox.showwarning("Error", "You can only log visits to shows in the past.")
+                else:
+                    self.c.execute("INSERT INTO SHOW_VISITS VALUES (%s,%s,%s)",(str(show_name), str(show_date), str(visitor)))
+                    messagebox.showwarning("Thank you!", "Your visit has been logged.")
 
 
 
@@ -1423,8 +1554,7 @@ class MainWindow(QWidget):
     def visitor_search_animals(self):
         SAlayout = QGridLayout()
 
-        self.title1 = QLabel("Atalnta Zoo")
-        self.title2 = QLabel("Animals")
+        self.title1 = QLabel("Atlanta Zoo")
         self.search = QPushButton("search")
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
@@ -1442,8 +1572,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1476,8 +1606,7 @@ class MainWindow(QWidget):
         SAlayout.setColumnStretch(1,3)
         SAlayout.setRowStretch(1,2)
         SAlayout.addWidget(self.title1,1,0)
-        SAlayout.addWidget(self.title2, 1,2)
-        SAlayout.addWidget(self.search,2,3)
+        SAlayout.addWidget(self.search,5,3)
         SAlayout.addWidget(self.name, 2,0)
         SAlayout.addWidget(self.wname,2,1)
         SAlayout.addWidget(self.Species,3,0)
@@ -1489,8 +1618,8 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.wmaxAge,5,2)
         SAlayout.addWidget(self.exhibit,3,2)
         SAlayout.addWidget(self.exhibitDrop,3,3)
-        SAlayout.addWidget(self.table,6,0,4,6)
-        SAlayout.addWidget(self.back,5,3)
+        SAlayout.addWidget(self.table,6,0,4,10)
+        SAlayout.addWidget(self.back,1,3.5)
 
         self.search.clicked.connect(self.search_animals_button)
         self.back.clicked.connect(self.bac_button)
@@ -1502,6 +1631,34 @@ class MainWindow(QWidget):
             page.close()
         self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.vsa_column_sort)
+
+    def vsa_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "name"
+        elif sort_by == "Species":
+            sort_by = "species"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        elif sort_by == "Age":
+            sort_by = "age"
+        else:
+            sort_by = "type"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 #DO NOT CHANGE THE NAME OF THIS METHOD
 #STAFF AND VISITOR BOTH USE THIS METHOD TO SEARCH FOR ANIMALS
@@ -1570,19 +1727,19 @@ class MainWindow(QWidget):
                 row.append(item)
             self.model.appendRow(row)
 
-        headerNames = ["Name", "Species", "Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species", "Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
         self.table.setModel(self.model)
 
 
     def staff_search_animals(self):
         SAlayout = QGridLayout()
-
+        self.title1 = QLabel("Atlanta Zoo")
+        self.back = QPushButton("Back")
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.wname = QLineEdit()
         self.search = QPushButton("search")
-
         self.age = QLabel("Age: ")
         self.minAge = QLabel("min")
         self.wminAge = QLineEdit()
@@ -1611,8 +1768,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 
 #fill dedfault table
@@ -1636,14 +1793,15 @@ class MainWindow(QWidget):
         self.table.doubleClicked.connect(self.staff_animal_care)
 
         SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,3)
+        SAlayout.setColumnStretch(1,4)
         SAlayout.setRowStretch(1,2)
+        SAlayout.addWidget(self.title1,1,0)
         SAlayout.addWidget(self.name, 2,0)
         SAlayout.addWidget(self.wname,2,1)
         SAlayout.addWidget(self.Species,3,0)
         SAlayout.addWidget(self.wSpecies, 3,1)
-        SAlayout.addWidget(self.Type,5,3)
-        SAlayout.addWidget(self.typeDrop,5,4)
+        SAlayout.addWidget(self.Type,4,3)
+        SAlayout.addWidget(self.typeDrop,5,3)
         SAlayout.addWidget(self.age, 5,0)
         SAlayout.addWidget(self.maxAge,4,2)
         SAlayout.addWidget(self.minAge,4,1)
@@ -1651,10 +1809,12 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.wmaxAge,5,2)
         SAlayout.addWidget(self.exhibit,3,2)
         SAlayout.addWidget(self.exhibitDrop,3,3)
-        SAlayout.addWidget(self.table,7,0,4,4)
-        SAlayout.addWidget(self.search,2,4)
+        SAlayout.addWidget(self.table,7,0,4,11)
+        SAlayout.addWidget(self.search,2,2)
+        SAlayout.addWidget(self.back,2,3)
 
         self.search.clicked.connect(self.staff_search_animals_button)
+        self.back.clicked.connect(self.bac_button)
 
 
         self.search_animals = QDialog()
@@ -1664,6 +1824,38 @@ class MainWindow(QWidget):
             page.close()
         self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.ssa_column_sort)
+
+
+
+    def ssa_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        elif sort_by == "Species":
+            sort_by = "species"
+        elif sort_by == "Age":
+            sort_by = "age"
+        elif sort_by == "Type":
+            sort_by = "type"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:
+                item = QStandardItem(str(j))
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def staff_search_animals_button(self):
         errorstr = ""
@@ -1733,8 +1925,8 @@ class MainWindow(QWidget):
                 row.append(item)
             self.model.appendRow(row)
 
-        headerNames = ["Name", "Species", "Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species", "Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
         self.table.setModel(self.model)
 
 
@@ -1745,6 +1937,7 @@ class MainWindow(QWidget):
         e_name = animal[2].data()
         a_age = animal[3].data()
         a_type = animal[4].data()
+        self.back= QPushButton("Back")
 
         self.setWindowTitle('Animal Detail')
         SAlayout = QGridLayout()
@@ -1762,15 +1955,15 @@ class MainWindow(QWidget):
         self.notesTable = QTableView()
         self.notesModel = QStandardItemModel()
         self.notesModel.setColumnCount(3)
-        headerNames = ["Staff Member", "Note","Time"]
-        self.notesModel.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Staff Member", "Note","Time"]
+        self.notesModel.setHorizontalHeaderLabels(self.headerNames)
 
         #need a method here to get only the notes for this animal
 
         self.notesTable.setModel(self.notesModel)
-
+        self.notesTable.setColumnWidth(2,200)
         SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,3)
+        SAlayout.setColumnStretch(1,6)
         SAlayout.setRowStretch(1,2)
         SAlayout.addWidget(zooLabel, 0,0)
         SAlayout.addWidget(emptyspace, 1,0)
@@ -1781,8 +1974,9 @@ class MainWindow(QWidget):
         SAlayout.addWidget(agelbl, 2,3)
         SAlayout.addWidget(exhibitlbl,3,0)
         SAlayout.addWidget(self.acNote,4,0)
-        SAlayout.addWidget(logNotesButton,4,1)
-        SAlayout.addWidget(self.notesTable,6,0,4,4)
+        SAlayout.addWidget(logNotesButton,4,6)
+        SAlayout.addWidget(self.notesTable,6,0,4,8)
+        SAlayout.addWidget(self.back,0,6)
         self.db = self.Connect()
         self.c = self.db.cursor()
 
@@ -1799,14 +1993,17 @@ class MainWindow(QWidget):
             self.notesModel.appendRow(row)
 
         logNotesButton.clicked.connect(self.add_ac_note)
-
-
+        self.back.clicked.connect(self.back_out_of_animal_care)
 
         self.animal_care = QDialog()
         self.animal_care.setLayout(SAlayout)
         self.animal_care.show()
         self.animal_care.setWindowTitle('Animal Care')
         self.openPages.append(self.animal_care)
+
+    def back_out_of_animal_care(self):
+        self.animal_care.close()
+        self.search_animals.setFocus()
 
     def add_ac_note(self):
         user = QStandardItem(str(self.my_user[1]))
@@ -1823,7 +2020,7 @@ class MainWindow(QWidget):
 
     def admin_view_shows(self):
         SSlayout = QGridLayout()
-
+        self.title1 = QLabel("Atlanta Zoo")
         self.search = QPushButton("Search")
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
@@ -1835,6 +2032,7 @@ class MainWindow(QWidget):
         self.dateDrop.setSpecialValueText(" ")
         self.dateDrop.setDate(QDate.fromString( "01/01/0001", "dd/MM/yyyy" ))
         self.dateDrop.setMinimumDate(QDate.fromString( "01/01/2010", "dd/MM/yyyy" ))
+        self.back = QPushButton("Back")
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
         self.RemoveShow = QPushButton("Remove Show")
@@ -1843,8 +2041,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Exhibit", "Date"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1871,10 +2069,12 @@ class MainWindow(QWidget):
 
         self.exhibitDrop.addItems(exDrop)
         self.table.setModel(self.model)
+        self.table.setColumnWidth(2,150)
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
         SSlayout.setRowStretch(1,3)
+        SSlayout.addWidget(self.title1,1,0)
         SSlayout.addWidget(self.search,3,3)
         SSlayout.addWidget(self.name, 2,0)
         SSlayout.addWidget(self.wname,2,1)
@@ -1882,11 +2082,13 @@ class MainWindow(QWidget):
         SSlayout.addWidget(self.dateDrop,2,3)
         SSlayout.addWidget(self.exhibit,3,0)
         SSlayout.addWidget(self.exhibitDrop,3,1)
-        SSlayout.addWidget(self.table,4,0,4,4)
+        SSlayout.addWidget(self.table,4,0,4,6)
         SSlayout.addWidget(self.RemoveShow,8,3)
+        SSlayout.addWidget(self.back,8,0)
 
         self.RemoveShow.clicked.connect(self.remove_show)
         self.search.clicked.connect(self.search_shows_button)
+        self.back.clicked.connect(self.bac_button)
 
         self.view_shows = QDialog()
         self.view_shows.setLayout(SSlayout)
@@ -1895,6 +2097,30 @@ class MainWindow(QWidget):
         for page in self.openPages:
             page.close()
         self.openPages.append(self.view_shows)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.avshow_column_sort)
+
+    def avshow_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT show_name, exhibit_name, datetime FROM SHOWS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def remove_show(self):
 
@@ -1918,21 +2144,22 @@ class MainWindow(QWidget):
 
     def admin_view_animals(self):
         SAlayout = QGridLayout()
-
+        self.title1 = QLabel("Atlanta Zoo")
         self.search = QPushButton("search")
         self.name = QLabel("Name: ")
         self.wname = QLineEdit()
         self.wname = QLineEdit()
         self.age = QLabel("Age: ")
-        self.minAge = QLabel("min")
+        self.minAge = QLabel("max")
         self.wminAge = QLineEdit()
-        self.maxAge = QLabel("max")
+        self.maxAge = QLabel("min")
         self.Species = QLabel("Species: ")
         self.wSpecies = QLineEdit()
         self.wmaxAge = QLineEdit()
         self.exhibit = QLabel("Exhibit: ")
         self.exhibitDrop = QComboBox()
         self.RemoveAnimal = QPushButton("Remove Animal")
+        self.back = QPushButton("Back")
 
         self.table = QTableView()
 
@@ -1940,8 +2167,8 @@ class MainWindow(QWidget):
         self.table.setSelectionMode(QTableView.SingleSelection)
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -1968,10 +2195,12 @@ class MainWindow(QWidget):
 
         self.exhibitDrop.addItems(exDrop)
         self.table.setModel(self.model)
+        self.table.setColumnWidth(4,100)
 
         SAlayout = QGridLayout()
-        SAlayout.setColumnStretch(1,3)
-        SAlayout.setRowStretch(1,2)
+        SAlayout.setColumnStretch(1,5)
+        SAlayout.setRowStretch(1,5)
+        SAlayout.addWidget(self.title1,1,0)
         SAlayout.addWidget(self.search,2,3)
         SAlayout.addWidget(self.name, 2,0)
         SAlayout.addWidget(self.wname,2,1)
@@ -1984,11 +2213,13 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.wmaxAge,5,2)
         SAlayout.addWidget(self.exhibit,3,2)
         SAlayout.addWidget(self.exhibitDrop,3,3)
-        SAlayout.addWidget(self.table,6,0,4,4)
-        SAlayout.addWidget(self.RemoveAnimal,10,4)
+        SAlayout.addWidget(self.table,6,0,3,10)
+        SAlayout.addWidget(self.RemoveAnimal,10,3)
+        SAlayout.addWidget(self.back,10,0)
 
         self.RemoveAnimal.clicked.connect(self.remove_animals)
         self.search.clicked.connect(self.search_animals_button)
+        self.back.clicked.connect(self.bac_button)
 #found in line 1025, written after visitor_search_animals function
         self.view_animals = QDialog()
         self.view_animals.setLayout(SAlayout)
@@ -1997,6 +2228,34 @@ class MainWindow(QWidget):
         for page in self.openPages:
             page.close()
         self.openPages.append(self.view_animals)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.ava_column_sort)
+
+    def ava_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "name"
+        elif sort_by == "Species":
+            sort_by = "species"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        elif sort_by == "Age":
+            sort_by = "age"
+        else:
+            sort_by = "type"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT name,species,exhibit_name,age,type FROM ANIMALS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def remove_animals(self):
         animal = self.table.selectionModel().selectedIndexes()
@@ -2019,14 +2278,14 @@ class MainWindow(QWidget):
         atlantaZoo = QLabel()
         atlantaZoo.setText("Atlanta Zoo")
         showHistory = QLabel()
-        showHistory.setText("Staff - Show History")
+        self.back = QPushButton("Back")
 
         SSlayout = QGridLayout()
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Time", "Exhibit"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Time", "Exhibit"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -2041,13 +2300,15 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
+        self.table.setColumnWidth(1,200)
+        self.table.setColumnWidth(2,100)
 
         SSlayout = QGridLayout()
-        SSlayout.setColumnStretch(1,3)
-        SSlayout.setRowStretch(1,3)
+        SSlayout.setColumnStretch(1,2)
+        SSlayout.setRowStretch(1,2)
         SSlayout.addWidget(atlantaZoo,0,0)
-        SSlayout.addWidget(showHistory)
-        SSlayout.addWidget(self.table,4,0,4,4)
+        SSlayout.addWidget(self.table,2,0,2,28)
+        SSlayout.addWidget(self.back,8,8)
 
         self.view_shows = QDialog()
         self.view_shows.setLayout(SSlayout)
@@ -2056,6 +2317,33 @@ class MainWindow(QWidget):
         for page in self.openPages:
             page.close()
         self.openPages.append(self.view_shows)
+
+        self.back.clicked.connect(self.bac_button)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.svs_column_sort)
+
+
+    def svs_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT show_name, datetime, exhibit_name FROM SHOWS WHERE SHOWS.username=%s ORDER BY " + sort_by, (self.my_user[1]))
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:
+                item = QStandardItem(str(j))
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 
     def search_exhibits(self):
@@ -2087,8 +2375,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(4)
-        headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Exhibit Name", "Water", "Number of Animals", "Size"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         for i in result:
             row = []
@@ -2131,6 +2419,30 @@ class MainWindow(QWidget):
             page.close()
 
         self.search.clicked.connect(self.exhibitSearch)
+
+    def vse_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Exhibit Name":
+            sort_by = "exhibit_name"
+        elif sort_by == "Water":
+            sort_by = "water"
+        elif sort_by == "Number of Animals":
+            sort_by = "number_of_animals"
+        else:
+            sort_by = "size"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT exhibit_name, water, number_of_animals, size FROM EXHIBITS ORDER BY " + sort_by)
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:  #converts item to list from tuple
+                item = QStandardItem(str(j)) #has to be converted to string in order to work
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
     def exhibitSearch(ds):
         self.animalMin = str(self.wanimalMin.text())
@@ -2192,8 +2504,8 @@ class MainWindow(QWidget):
         self.table = QTableView()
         self.model = QStandardItemModel()
         self.model.setColumnCount(3)
-        headerNames = ["Name", "Exhibit", "Date"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.headerNames = ["Name", "Exhibit", "Date"]
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
         self.db = self.Connect()
         self.c = self.db.cursor()
@@ -2281,11 +2593,11 @@ class MainWindow(QWidget):
                 else:
                     messagebox.showwarning("Error", "Unrecognized account type.\nCheck database.")
             else:
-                self.my_user = None
+                messagebox.showwarning("Error", "Username or password incorrect. \n Please try again.")
+                self.try_again()
         else:
             messagebox.showwarning("Error", "Username or password incorrect. \n Please try again.")
             self.try_again()
-
 
 
 
@@ -2399,7 +2711,6 @@ class MainWindow(QWidget):
             passwd = str(pbkdf2_sha256.hash(self.pswd))
             self.c.execute("INSERT INTO USERS VALUES (%s,%s,%s,%s)",(self.email, self.user, passwd, "visitor"))
             messagebox.showwarning("Registered", "Visitor account has been registered")
-            print(self.pswd)
             self.go_to_register.close()
 
 
