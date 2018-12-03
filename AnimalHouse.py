@@ -1,25 +1,5 @@
 #!/usr/bin/env python3
 
-# min and max should be inclusive for all SQL statements
-
-############################
-# WORKING FUNCTIONALITIES
-# - visitor search animals
-# - admin view visitors
-# - admin view staff
-# - admin view animals
-# - admin view shows
-# - visitor view show history
-# - staff view show history
-# - admin add animal
-#    - does not exit out after animal is successfully added
-# - admin add show
-#     - does not exit out after show is successfully added
-############################
-# NONWORKING FUNCTIONALITIES
-# admin remove show
-#############################
-
 import sys
 from datetime import datetime
 
@@ -513,37 +493,33 @@ class MainWindow(QWidget):
             count+=1
         if len(self.age) < 1:
             printstr += "- Age of animal is not entered\n"
-        else:
-            try:
-                self.age = int(self.age)
-            except:
-                printstr += "- Age of animals must be an integer\n"
-                count += 1
+        if (type(self.age) != int):
+            printstr += "- Age of animals must be an integer\n"
+            count += 1
         if len(self.exhibit) < 1:
             printstr += "- Select a valid exhibit\n"
             count += 1
         if len(self.type) < 1:
             printstr += "- Select a valid type\n"
             count += 1
+        if (len(self.name) > 0) and (len(self.species) > 0) and (len(self.age) > 0) and (len(self.exhibit) > 0) and (len(self.type) > 0):
+            self.c.execute("SELECT name, species FROM ANIMALS WHERE name = (%s) and species = (%s) and age = (%s)", (self.name,self.species,self.age))
+            animalMatch = self.c.fetchall()
+            if len(animalMatch) != 0:
+                printstr += "This name already exists in the Zoo's database"
+                count += 1
 
-        self.c.execute("SELECT name, species FROM ANIMALS WHERE name = (%s) and species = (%s) and age = (%s)", (self.name,self.species,self.age))
-        animalMatch = self.c.fetchall()
-        if len(animalMatch) != 0:
-            printstr += "This name already exists in the Zoo's database"
-            count += 1
-
-        if count > 0:
-            messagebox.showwarning("Error", printstr)
+            if count > 0:
+                messagebox.showwarning("Error", printstr)
 
 #adding the visitor to the database
+            else:
+                self.name = self.name.capitalize()
+                self.species = self.species
+                self.c.execute("INSERT INTO ANIMALS VALUES (%s,%s,%s,%s,%s)",(self.name,self.species,self.type,self.age,self.exhibit))
+                messagebox.showwarning("Congrats", "Animal has been successfully added")
         else:
-            self.name = self.name.capitalize()
-            self.species = self.species
-            self.c.execute("INSERT INTO ANIMALS VALUES (%s,%s,%s,%s,%s)",(self.name,self.species,self.type,self.age,self.exhibit))
-            messagebox.showwarning("Congrats", "Animal has been successfully added")
-            ########################################
-            # I don't know how to close this
-            #########################################
+            messagebox.showwarning("Error", printstr)
 
 
     def admin_view_visitor(self):
@@ -1137,7 +1113,7 @@ class MainWindow(QWidget):
 
             self.date = ""
             self.date = self.year + "-" + self.month + "-" + self.day
-            addQuery.append("DATE(SHOWS.datetime) = '{}'".format(self.date))
+            addQuery.append("DATE(datetime) = '{}'".format(self.date))
         if len(self.maxVisits.text()) > 0:
             try:
                 int(self.maxVisits.text())
