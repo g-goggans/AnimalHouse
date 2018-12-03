@@ -74,6 +74,7 @@ class MainWindow(QWidget):
         self.register_button.setEnabled(True)
         self.login_button = QPushButton("Login")
         self.login_button.setEnabled(True)
+        self.login_button.setDefault(True)
 
         self.vbox = QVBoxLayout()
         userlbl = QLabel()
@@ -785,49 +786,36 @@ class MainWindow(QWidget):
 
         SAlayout = QGridLayout()
 
+        exit = QPushButton("Exit")
         name = QLabel("Name: ")
         wname = QLabel(str(animal_info[0]))
         spec = QLabel("Species: ")
-        wspecies = QLabel(str(animal_info[1]))
-        self.name = QLabel("Name: ")
+        wspec = QLabel(str(animal_info[1]))
+        typey = QLabel("Type: ")
         wtype = QLabel(str(animal_info[2]))
-        self.name = QLabel("Name: ")
+        age = QLabel("Age: ")
         wage = QLabel(str(animal_info[3]))
-        self.name = QLabel("Name: ")
+        exhibit = QLabel("Exhibit: ")
         wexhibit = QLabel(str(animal_info[4]))
-        self.wname = QLineEdit()
-        self.search = QPushButton("search")
 
-        self.age = QLabel("Age: ")
-        self.minAge = QLabel("min")
-        self.wminAge = QLineEdit()
-        self.maxAge = QLabel("max")
-        self.wmaxAge = QLineEdit()
+        SAlayout.addWidget(name,1,0)
+        SAlayout.addWidget(wname,1,1)
+        SAlayout.addWidget(spec,1,2)
+        SAlayout.addWidget(wspec,1,3)
+        SAlayout.addWidget(age,1,4)
+        SAlayout.addWidget(wage,1,5)
+        SAlayout.addWidget(name,1,0)
+        SAlayout.addWidget(typey,2,0)
+        SAlayout.addWidget(wtype,2,1)
+        SAlayout.addWidget(exhibit,2,2)
+        SAlayout.addWidget(wexhibit,2,3)
+        SAlayout.addWidget(exit,2,4)
 
-        self.Species = QLabel("Species: ")
-        self.wSpecies = QLineEdit()
-
-        self.Type = QLabel("Type: ")
-        self.typeDrop = QComboBox()
-        typDrop = ["","Bird","Fish","Mammal","Amphibian","Reptile","Invertebrate"]
-        self.typeDrop.addItems(typDrop)
-
-        self.exhibit = QLabel("Exhibit: ")
-        self.exhibitDrop = QComboBox()
-        self.db = self.Connect()
-        self.c = self.db.cursor()
-        self.c.execute("SELECT distinct(exhibit_name) FROM EXHIBITS")
-#exhibit drop down menu contents
-        result = self.c.fetchall()
-
-        exDrop = ["","Birds","Pacific","Mountainous","Jungle","Sahara"]
-        self.exhibitDrop.addItems(exDrop)
-
-        self.table = QTableView()
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(3)
-        headerNames = ["Name", "Species","Exhibit", "Age", "Type"]
-        self.model.setHorizontalHeaderLabels(headerNames)
+        self.animalView = QDialog()
+        self.animalView.setLayout(SAlayout)
+        self.animalView.setWindowTitle("Animal Details")
+        self.animalView.show()
+        exit.clicked.connect(self.animalView.close)
 
     def back_out_of_exhibit_detail(self):
         self.log_exhibit.close()
@@ -1746,7 +1734,6 @@ class MainWindow(QWidget):
         a_age = animal[3].data()
         a_type = animal[4].data()
 
-        self.setWindowTitle('Animal Detail')
         SAlayout = QGridLayout()
         zooLabel = QLabel("Atlanta Zoo")
         emptyspace = QLabel("")
