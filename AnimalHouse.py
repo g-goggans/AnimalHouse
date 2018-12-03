@@ -390,7 +390,11 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.back,10,0)
 
         self.RemoveStaff.clicked.connect(self.remove_staff)
+
         self.back.clicked.connect(self.bac_button)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.avs_column_sort)
+
 
         self.view_staff = QDialog()
         self.view_staff.setLayout(SAlayout)
@@ -586,7 +590,11 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.back,10,0)
 
         self.RemoveVisitor.clicked.connect(self.remove_visitor)
+
         self.back.clicked.connect(self.bac_button)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.avv_column_sort)
+
 
         self.view_visitors = QDialog()
         self.view_visitors.setLayout(SAlayout)
@@ -596,7 +604,10 @@ class MainWindow(QWidget):
         self.view_visitors.setWindowTitle('View Visitors')
         self.openPages.append(self.view_visitors)
 
+
         self.table.horizontalHeader().sectionClicked.connect(self.avv_column_sort)
+
+
 
     def avv_column_sort(self, position):
         sort_by = self.headerNames[position]
@@ -763,6 +774,8 @@ class MainWindow(QWidget):
         self.search.clicked.connect(self.visitor_exhibit_search_button)
         self.back.clicked.connect(self.bac_button)
         self.table.doubleClicked.connect(self.exhibit_details)
+        self.table.horizontalHeader().sectionClicked.connect(self.vse_column_sort)
+
 
         self.table.horizontalHeader().sectionClicked.connect(self.vse_column_sort)
 
@@ -1050,6 +1063,8 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.visitor_exhibit_history_search)
         self.back.clicked.connect(self.bac_button)
+        self.table.horizontalHeader().sectionClicked.connect(self.vseh_column_sort)
+
 
         self.exhibit_history = QDialog()
         self.exhibit_history.setLayout(SSlayout)
@@ -1059,7 +1074,10 @@ class MainWindow(QWidget):
         self.exhibit_history.setWindowTitle('Exhibit History')
         self.openPages.append(self.exhibit_history)
 
+
         self.table.horizontalHeader().sectionClicked.connect(self.vseh_column_sort)
+
+
 
     def vseh_column_sort(self, position):
         sort_by = self.headerNames[position]
@@ -1243,6 +1261,7 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.view_show_history_search)
         self.back.clicked.connect(self.bac_button)
+        self.historyTable.horizontalHeader().sectionClicked.connect(self.vsh_column_sort)
 
         self.show_history = QDialog()
         self.show_history.setLayout(SAlayout)
@@ -1252,7 +1271,10 @@ class MainWindow(QWidget):
         self.show_history.setWindowTitle('Show History')
         self.openPages.append(self.show_history)
 
+
         self.table.horizontalHeader().sectionClicked.connect(self.vsh_column_sort)
+
+
 
     def vsh_column_sort(self, position):
         sort_by = self.headerNames[position]
@@ -1396,7 +1418,11 @@ class MainWindow(QWidget):
 
         self.exhibitDrop.addItems(exDrop)
         self.table.setModel(self.model)
+
         self.table.setColumnWidth(2,180)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.vss_column_sort)
+
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,3)
@@ -1426,7 +1452,10 @@ class MainWindow(QWidget):
         self.search_shows.setWindowTitle('Search Shows')
         self.openPages.append(self.search_shows)
 
+
         self.table.horizontalHeader().sectionClicked.connect(self.vss_column_sort)
+
+
 
     def vss_column_sort(self, position):
         sort_by = self.headerNames[position]
@@ -1449,6 +1478,10 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
         self.table.setModel(self.model)
         self.model.setHorizontalHeaderLabels(self.headerNames)
+
+
+
+
 
 
 
@@ -1623,6 +1656,7 @@ class MainWindow(QWidget):
 
         self.search.clicked.connect(self.search_animals_button)
         self.back.clicked.connect(self.bac_button)
+        self.table.horizontalHeader().sectionClicked.connect(self.vsa_column_sort)
 
         self.search_animals = QDialog()
         self.search_animals.setLayout(SAlayout)
@@ -1632,7 +1666,10 @@ class MainWindow(QWidget):
         self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
 
+
         self.table.horizontalHeader().sectionClicked.connect(self.vsa_column_sort)
+
+
 
     def vsa_column_sort(self, position):
         sort_by = self.headerNames[position]
@@ -1814,7 +1851,10 @@ class MainWindow(QWidget):
         SAlayout.addWidget(self.back,2,3)
 
         self.search.clicked.connect(self.staff_search_animals_button)
+
         self.back.clicked.connect(self.bac_button)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.ssa_column_sort)
 
 
         self.search_animals = QDialog()
@@ -1824,6 +1864,7 @@ class MainWindow(QWidget):
             page.close()
         self.search_animals.setWindowTitle('Search Animals')
         self.openPages.append(self.search_animals)
+
 
         self.table.horizontalHeader().sectionClicked.connect(self.ssa_column_sort)
 
@@ -1939,7 +1980,6 @@ class MainWindow(QWidget):
         a_type = animal[4].data()
         self.back= QPushButton("Back")
 
-        self.setWindowTitle('Animal Detail')
         SAlayout = QGridLayout()
         zooLabel = QLabel("Atlanta Zoo")
         emptyspace = QLabel("")
@@ -2088,7 +2128,10 @@ class MainWindow(QWidget):
 
         self.RemoveShow.clicked.connect(self.remove_show)
         self.search.clicked.connect(self.search_shows_button)
+
         self.back.clicked.connect(self.bac_button)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.vss_column_sort)
 
         self.view_shows = QDialog()
         self.view_shows.setLayout(SSlayout)
@@ -2098,7 +2141,10 @@ class MainWindow(QWidget):
             page.close()
         self.openPages.append(self.view_shows)
 
+
         self.table.horizontalHeader().sectionClicked.connect(self.avshow_column_sort)
+
+
 
     def avshow_column_sort(self, position):
         sort_by = self.headerNames[position]
@@ -2150,9 +2196,9 @@ class MainWindow(QWidget):
         self.wname = QLineEdit()
         self.wname = QLineEdit()
         self.age = QLabel("Age: ")
-        self.minAge = QLabel("min")
+        self.minAge = QLabel("max")
         self.wminAge = QLineEdit()
-        self.maxAge = QLabel("max")
+        self.maxAge = QLabel("min")
         self.Species = QLabel("Species: ")
         self.wSpecies = QLineEdit()
         self.wmaxAge = QLineEdit()
@@ -2219,8 +2265,13 @@ class MainWindow(QWidget):
 
         self.RemoveAnimal.clicked.connect(self.remove_animals)
         self.search.clicked.connect(self.search_animals_button)
+
         self.back.clicked.connect(self.bac_button)
 #found in line 1025, written after visitor_search_animals function
+
+        self.table.horizontalHeader().sectionClicked.connect(self.ava_column_sort)
+#found in line 1025, written after visitor_search_animals
+
         self.view_animals = QDialog()
         self.view_animals.setLayout(SAlayout)
         self.view_animals.setWindowTitle('View Animals')
@@ -2229,7 +2280,9 @@ class MainWindow(QWidget):
             page.close()
         self.openPages.append(self.view_animals)
 
+
         self.table.horizontalHeader().sectionClicked.connect(self.ava_column_sort)
+
 
     def ava_column_sort(self, position):
         sort_by = self.headerNames[position]
@@ -2300,8 +2353,11 @@ class MainWindow(QWidget):
             self.model.appendRow(row)
 
         self.table.setModel(self.model)
+
         self.table.setColumnWidth(1,200)
         self.table.setColumnWidth(2,100)
+
+        self.table.horizontalHeader().sectionClicked.connect(self.svs_column_sort)
 
         SSlayout = QGridLayout()
         SSlayout.setColumnStretch(1,2)
@@ -2321,6 +2377,29 @@ class MainWindow(QWidget):
         self.back.clicked.connect(self.bac_button)
 
         self.table.horizontalHeader().sectionClicked.connect(self.svs_column_sort)
+
+
+    def svs_column_sort(self, position):
+        sort_by = self.headerNames[position]
+        if sort_by == "Name":
+            sort_by = "show_name"
+        elif sort_by == "Exhibit":
+            sort_by = "exhibit_name"
+        else:
+            sort_by = "datetime"
+        self.c = self.db.cursor()
+        self.c.execute("SELECT show_name, datetime, exhibit_name FROM SHOWS WHERE SHOWS.username=%s ORDER BY " + sort_by, (self.my_user[1]))
+        result = self.c.fetchall()
+        self.model = QStandardItemModel()
+        for i in result:
+            row = []
+            for j in i:
+                item = QStandardItem(str(j))
+                item.setEditable(False)
+                row.append(item)
+            self.model.appendRow(row)
+        self.table.setModel(self.model)
+        self.model.setHorizontalHeaderLabels(self.headerNames)
 
 
     def svs_column_sort(self, position):
